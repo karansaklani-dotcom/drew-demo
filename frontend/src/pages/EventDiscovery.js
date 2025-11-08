@@ -166,8 +166,13 @@ const EventDiscovery = () => {
           <p className="text-gray-600">Curated experiences you'll love</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockEvents.map((event) => (
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="h-12 w-12 animate-spin text-purple-600" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {events.map((event) => (
             <div
               key={event.id}
               className="group cursor-pointer"
