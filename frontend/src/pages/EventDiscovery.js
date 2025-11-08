@@ -1,18 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { mockEvents } from '../mock/mockData';
+import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
-import { Calendar, MapPin, Heart, Plus, Mic, ArrowUp, Menu, Globe, User } from 'lucide-react';
+import { Calendar, MapPin, Heart, Plus, Mic, ArrowUp, Menu, Globe, User, Loader2 } from 'lucide-react';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const EventDiscovery = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('Anywhere');
   const [dateFilter, setDateFilter] = useState('Any week');
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get(`${API}/events`);
+      setEvents(response.data.events);
+    } catch (error) {
+      console.error('Failed to fetch events:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEventClick = (eventId) => {
     navigate(`/event/${eventId}`);
