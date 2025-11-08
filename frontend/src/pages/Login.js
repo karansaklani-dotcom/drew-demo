@@ -4,14 +4,17 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { toast } from '../hooks/use-toast';
-import { Mail, Loader2 } from 'lucide-react';
+import { Mail, Loader2, Lock } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const { sendMagicLink, signInWithGoogle } = useAuth();
+  const { sendMagicLink, signInWithGoogle, login, register } = useAuth();
   const navigate = useNavigate();
 
   const handleMagicLink = async (e) => {
