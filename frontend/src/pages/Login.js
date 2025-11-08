@@ -17,6 +17,81 @@ const Login = () => {
   const { sendMagicLink, signInWithGoogle, login, register } = useAuth();
   const navigate = useNavigate();
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      toast({
+        title: 'Missing fields',
+        description: 'Please enter both email and password',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        if (result.user.hasCompletedOnboarding) {
+          navigate('/');
+        } else {
+          navigate('/onboarding');
+        }
+      }
+    } catch (error) {
+      toast({
+        title: 'Login failed',
+        description: error.message || 'Invalid email or password',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    
+    if (!username || !email || !password) {
+      toast({
+        title: 'Missing fields',
+        description: 'Please fill in all fields',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: 'Weak password',
+        description: 'Password must be at least 6 characters',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await register(username, email, password);
+      if (result.success) {
+        toast({
+          title: 'Account created!',
+          description: 'Welcome to Drew'
+        });
+        navigate('/onboarding');
+      }
+    } catch (error) {
+      toast({
+        title: 'Registration failed',
+        description: error.message || 'Please try again',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleMagicLink = async (e) => {
     e.preventDefault();
     
