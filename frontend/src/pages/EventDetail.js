@@ -286,7 +286,7 @@ const EventDetail = () => {
                 )}
 
                 <Button
-                  className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold mb-4"
+                  className="w-full h-12 bg-black hover:bg-gray-800 text-white font-semibold mb-4"
                 >
                   Show dates
                 </Button>
