@@ -276,7 +276,7 @@ const Onboarding = () => {
 
             <Button
               onClick={handleComplete}
-              className="h-12 px-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg"
+              className="h-12 px-8 bg-black hover:bg-gray-800 text-white text-lg"
             >
               Get Started
             </Button>
