@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
 import EventDiscovery from "./pages/EventDiscovery";
 import EventDetail from "./pages/EventDetail";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
