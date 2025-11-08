@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mockEvents } from '../mock/mockData';
+import axios from 'axios';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Separator } from '../components/ui/separator';
@@ -23,8 +23,12 @@ import {
   Palette,
   Volume2,
   Smile,
-  Shirt
+  Shirt,
+  Loader2
 } from 'lucide-react';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const iconMap = {
   MapPin,
@@ -46,7 +50,23 @@ const iconMap = {
 const EventDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const event = mockEvents.find(e => e.id === id);
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchEvent();
+  }, [id]);
+
+  const fetchEvent = async () => {
+    try {
+      const response = await axios.get(`${API}/events/${id}`);
+      setEvent(response.data);
+    } catch (error) {
+      console.error('Failed to fetch event:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!event) {
     return (
