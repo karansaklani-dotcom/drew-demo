@@ -289,7 +289,7 @@ const Login = () => {
                   
                   <Button
                     type="submit"
-                    className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium"
+                    className="w-full h-12 bg-black hover:bg-gray-800 text-white font-medium"
                     disabled={isLoading}
                   >
                     {isLoading ? (
