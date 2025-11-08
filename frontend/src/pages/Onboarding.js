@@ -51,12 +51,16 @@ const Onboarding = () => {
     setStep(3);
   };
 
-  const handleComplete = () => {
-    completeOnboarding({
-      ...profileData,
-      organization: orgData
-    });
-    navigate('/');
+  const handleComplete = async () => {
+    try {
+      await completeOnboarding({
+        ...profileData,
+        organization: orgData
+      });
+      navigate('/');
+    } catch (error) {
+      alert('Failed to complete onboarding. Please try again.');
+    }
   };
 
   const handleSkip = () => {
