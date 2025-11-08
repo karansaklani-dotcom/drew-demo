@@ -78,7 +78,8 @@ const EventDiscovery = () => {
                 variant="ghost"
                 size="icon"
                 className="rounded-full bg-gray-100 hover:bg-gray-200"
-                onClick={logout}
+                onClick={() => navigate('/profile')}
+                title="Profile"
               >
                 <User className="h-5 w-5" />
               </Button>
