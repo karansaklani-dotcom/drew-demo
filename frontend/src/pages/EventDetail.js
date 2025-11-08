@@ -68,6 +68,14 @@ const EventDetail = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-purple-600" />
+      </div>
+    );
+  }
+
   if (!event) {
     return (
       <div className="min-h-screen flex items-center justify-center">
