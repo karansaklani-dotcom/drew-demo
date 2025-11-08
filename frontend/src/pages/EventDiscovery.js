@@ -222,9 +222,8 @@ const EventDiscovery = () => {
               </div>
             </div>
           ))}
-        </div>
+          </div>
         )}
-        </div>
       </section>
     </div>
   );
