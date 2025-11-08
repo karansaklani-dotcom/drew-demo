@@ -223,6 +223,8 @@ const EventDiscovery = () => {
             </div>
           ))}
         </div>
+        )}
+        </div>
       </section>
     </div>
   );
