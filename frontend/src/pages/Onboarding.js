@@ -253,7 +253,7 @@ const Onboarding = () => {
               </Button>
               <Button
                 onClick={handleStep2Continue}
-                className="flex-1 h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                className="flex-1 h-12 bg-black hover:bg-gray-800 text-white"
               >
                 Continue
               </Button>
