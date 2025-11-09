@@ -39,11 +39,16 @@ apiClient.interceptors.request.use(
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
     (response) => {
+        // Check if response contains a token and store it
+        if (response.data?.token) {
+            localStorage.setItem(TOKEN_KEY, response.data.token);
+        }
         return response;
     },
     (error) => {
         if (error.response?.status === 401) {
-            // Unauthorized - redirect to login
+            // Unauthorized - clear token and redirect to login
+            localStorage.removeItem(TOKEN_KEY);
             if (window.location.pathname !== "/login") {
                 localStorage.setItem(
                     REDIRECT_PATH_KEY,
