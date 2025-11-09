@@ -71,7 +71,9 @@ class RecommendationAgentWithTools:
         # Bind tools to LLM
         self.llm = llm.bind_tools(recommendation_tools)
         self.tools = agent_tools
-        self.tool_executor = ToolExecutor(recommendation_tools)
+        
+        # Create tool map for execution
+        self.tool_map = {tool.name: tool for tool in recommendation_tools}
         
         # Set global agent tools for tool functions
         set_agent_tools(agent_tools)
