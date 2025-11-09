@@ -974,15 +974,18 @@ async def project_chat_stream(
                 await asyncio.sleep(0.1)
             
             # Stream project updates
-            if response.get('projectName'):
+            project_name = response.get('projectName')
+            project_desc = response.get('projectDescription')
+            
+            if project_name and project_desc:
                 await db.projects.update_one(
                     {"_id": ObjectId(project_id)},
                     {"$set": {
-                        "name": response['projectName'],
-                        "description": response['projectDescription']
+                        "name": project_name,
+                        "description": project_desc
                     }}
                 )
-                yield f"data: {json.dumps({{'type': 'project_update', 'name': response['projectName'], 'description': response['projectDescription']}})}\n\n"
+                yield f"data: {json.dumps({{'type': 'project_update', 'name': project_name, 'description': project_desc}})}\n\n"
             
             # Stream response message character by character
             message = response.get('message', '')
