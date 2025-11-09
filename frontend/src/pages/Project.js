@@ -38,6 +38,7 @@ const Project = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const [agentState, setAgentState] = useState(null);
+    const [agentStates, setAgentStates] = useState([]); // Track all agent states
     const [typingText, setTypingText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef(null);
