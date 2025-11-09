@@ -28,6 +28,13 @@ class ReflectOnActivityInput(BaseModel):
     activity_id: str = Field(description="ID of the activity to evaluate")
     user_requirements: Dict[str, Any] = Field(description="User's requirements and preferences")
 
+class GenerateConversationalResponseInput(BaseModel):
+    """Input for generating conversational response"""
+    user_request: str = Field(description="The original user request or question")
+    recommendations_summary: str = Field(description="Summary of recommendations created (titles and reasons)")
+    number_of_recommendations: int = Field(description="Number of recommendations created")
+    context: Optional[Dict[str, Any]] = Field(None, description="Additional context about the user's needs")
+
 # Global storage for agent tools instance (injected from server.py)
 _agent_tools_instance = None
 _current_context = {}
@@ -186,9 +193,117 @@ async def reflect_on_activity_tool(
     
     return result
 
+@tool("generate_conversational_response", args_schema=GenerateConversationalResponseInput, return_direct=False)
+async def generate_conversational_response_tool(
+    user_request: str,
+    recommendations_summary: str,
+    number_of_recommendations: int,
+    context: Optional[Dict[str, Any]] = None
+) -> str:
+    """
+    Generate a warm, conversational response to the user about the recommendations created.
+    
+    This tool creates engaging, friendly responses that:
+    - Acknowledge the user's request naturally
+    - Highlight the recommendations in an enthusiastic way
+    - Use conversational language (not robotic)
+    - Show personality and helpfulness
+    - Keep it concise but warm (2-4 sentences)
+    
+    Use this tool after creating recommendations to provide a great user experience.
+    """
+    if not _agent_tools_instance:
+        return "Error: Agent tools not initialized"
+    
+    # Use LLM to generate conversational response
+    from langchain_openai import ChatOpenAI
+    from langchain_core.messages import SystemMessage, HumanMessage
+    import os
+    
+    openai_api_key = os.environ.get('OPENAI_API_KEY')
+    if not openai_api_key:
+        # Fallback to simple response
+        return f"I've found {number_of_recommendations} great activities for you! Check them out in your recommendations."
+    
+    llm = ChatOpenAI(
+        api_key=openai_api_key,
+        model="gpt-4o-mini",
+        temperature=0.8  # Higher temperature for more conversational tone
+    )
+    
+    system_prompt = """You are Drew, a friendly and enthusiastic activity recommendation assistant. 
+Your job is to create warm, conversational responses that make users feel heard and excited about their recommendations.
+
+Guidelines:
+- Be conversational and natural (like talking to a friend)
+- Show enthusiasm but don't overdo it
+- Acknowledge what the user asked for
+- Highlight 1-2 key recommendations naturally
+- Keep it concise (2-4 sentences max)
+- Use "I" and "you" to make it personal
+- Don't be robotic or overly formal
+- Show personality and helpfulness
+
+Example good responses:
+- "I found some great options for your team! I've added 4 activities that should work perfectly for your group size and location. The yoga session looks especially fun - it's customized for your holiday party theme!"
+- "Perfect! I've curated 4 activities that match what you're looking for. Check out the recommendations - I think you'll love the team building workshop, it's designed exactly for groups your size."
+- "Great request! I've added 4 recommendations to your project. They're all tailored to your needs - the cooking class is particularly popular for corporate events like yours."
+
+Example bad responses (avoid):
+- "I have successfully created 4 recommendations based on your criteria."
+- "The system has generated the following recommendations: [list]"
+- "Recommendations have been added to your project."
+"""
+    
+    # Try to get actual recommendations from database for better summary
+    context = get_current_context()
+    project_id = context.get('project_id')
+    
+    recommendations_details = []
+    if project_id and _agent_tools_instance:
+        try:
+            from bson import ObjectId
+            # Get recent recommendations for this project
+            recommendations = await _agent_tools_instance.db.recommendations.find({
+                "projectId": project_id
+            }).sort("createdAt", -1).limit(number_of_recommendations).to_list(number_of_recommendations)
+            
+            for rec in recommendations:
+                title = rec.get('customizedTitle') or rec.get('title', 'Unknown')
+                reason = rec.get('reasonToRecommend', 'Great activity')
+                recommendations_details.append(f"- {title}: {reason}")
+        except Exception as e:
+            logger.error(f"Error fetching recommendations: {e}")
+            # Fall back to provided summary
+            recommendations_details = recommendations_summary.split('\n') if recommendations_summary else []
+    else:
+        # Use provided summary
+        recommendations_details = recommendations_summary.split('\n') if recommendations_summary else []
+    
+    recommendations_text = '\n'.join(recommendations_details) if recommendations_details else recommendations_summary
+    
+    user_prompt = f"""User asked: "{user_request}"
+
+I created {number_of_recommendations} recommendations:
+{recommendations_text}
+
+Generate a warm, conversational response that acknowledges their request and highlights the recommendations naturally."""
+    
+    try:
+        response = await llm.ainvoke([
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=user_prompt)
+        ])
+        return response.content
+    except Exception as e:
+        logger.error(f"Error generating conversational response: {e}")
+        # Fallback response
+        return f"I've found {number_of_recommendations} great activities for you! Check them out in your recommendations - they're all tailored to what you're looking for."
+
 # List of all tools
 recommendation_tools = [
     search_activities_tool,
     create_recommendation_tool,
-    reflect_on_activity_tool
+    reflect_on_activity_tool,
+    generate_conversational_response_tool
 ]

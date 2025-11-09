@@ -231,7 +231,7 @@ Keep it warm and conversational."""
         })
         
         recommendations = []
-        for idx, activity in enumerate(activities[:3], 1):  # Top 3
+        for idx, activity in enumerate(activities[:4], 1):  # Top 4
             # Reflect
             reflection = await self.tools.reflect_and_transform(activity, user_context)
             

@@ -819,7 +819,10 @@ async def list_recommendations(
     }
 
 @api_router.get("/recommendation/{rec_id}")
-async def get_recommendation(rec_id: str):
+async def get_recommendation(
+    rec_id: str,
+    expand: Optional[str] = Query(None, description="Comma-separated relations to expand (activity, offerings, prerequisites)")
+):
     """Get recommendation by ID with populated activity data - public access"""
     if not ObjectId.is_valid(rec_id):
         raise HTTPException(status_code=400, detail="Invalid recommendation ID")
@@ -830,21 +833,32 @@ async def get_recommendation(rec_id: str):
     if not rec:
         raise HTTPException(status_code=404, detail="Recommendation not found")
     
-    # Populate activity if exists
-    if rec.get('activityId') and ObjectId.is_valid(rec['activityId']):
+    # Parse expand parameter
+    expand_fields = []
+    if expand:
+        expand_fields = [field.strip() for field in expand.split(',')]
+    
+    # Always populate activity if activityId exists (or if explicitly requested)
+    should_expand_activity = 'activity' in expand_fields or not expand_fields
+    if should_expand_activity and rec.get('activityId') and ObjectId.is_valid(rec['activityId']):
         activity = await db.activities.find_one({"_id": ObjectId(rec['activityId'])})
         if activity:
-            rec['activityDetails'] = serialize_doc(activity)
+            activity_serialized = serialize_doc(activity)
+            rec['activityDetails'] = activity_serialized
+            # Also add as 'activity' for consistency
+            rec['activity'] = activity_serialized
     
-    # Populate offerings
-    if rec.get('offeringIds'):
+    # Populate offerings if requested or if no expand specified
+    should_expand_offerings = 'offerings' in expand_fields or not expand_fields
+    if should_expand_offerings and rec.get('offeringIds'):
         offering_ids = [ObjectId(oid) for oid in rec['offeringIds'] if ObjectId.is_valid(oid)]
         if offering_ids:
             offerings = await db.offerings.find({"_id": {"$in": offering_ids}}).to_list(100)
             rec['offerings'] = serialize_list(offerings)
     
-    # Populate prerequisites
-    if rec.get('preRequisiteIds'):
+    # Populate prerequisites if requested or if no expand specified
+    should_expand_prereqs = 'prerequisites' in expand_fields or 'preRequisites' in expand_fields or not expand_fields
+    if should_expand_prereqs and rec.get('preRequisiteIds'):
         prereq_ids = [ObjectId(oid) for oid in rec['preRequisiteIds'] if ObjectId.is_valid(oid)]
         if prereq_ids:
             prereqs = await db.prerequisites.find({"_id": {"$in": prereq_ids}}).to_list(100)
@@ -951,6 +965,9 @@ async def project_chat_stream(
                 yield f"data: {json.dumps({'error': 'Prompt required'})}\n\n"
                 return
             
+            # Get thread_id from request if provided, otherwise use project's threadId
+            thread_id = request.get('threadId') or project.get('threadId')
+            
             # Send initial state
             yield f"data: {json.dumps({'type': 'start', 'message': 'Starting AI agents...'})}\n\n"
             
@@ -960,32 +977,43 @@ async def project_chat_stream(
                 prompt=prompt,
                 user_id=current_user['user_id'],
                 project_id=project_id,
-                thread_id=project.get('threadId')
+                thread_id=thread_id
             ):
-                if event.get('type') == 'agent_state':
+                event_type = event.get('type')
+                logger.info(f"Received event from supervisor: {event_type}")
+                
+                if event_type == 'agent_state':
                     # Stream agent state immediately
+                    logger.info(f"Streaming agent_state event: {event}")
                     yield f"data: {json.dumps(event)}\n\n"
                     await asyncio.sleep(0.05)
                 
-                elif event.get('type') == 'complete':
+                elif event_type == 'complete':
                     # Store final response
+                    logger.info(f"Received complete event with projectName: {event.get('projectName')}")
                     final_response = event
             
-            # Update project with AI-generated name/description
+            # Update project with AI-generated name/description and thread_id
             if final_response:
                 project_name = final_response.get('projectName')
                 project_desc = final_response.get('projectDescription')
+                thread_id = final_response.get('threadId')
                 
+                update_data = {}
                 if project_name and project_desc:
+                    update_data['name'] = project_name
+                    update_data['description'] = project_desc
+                if thread_id:
+                    update_data['threadId'] = thread_id
+                
+                if update_data:
                     await db.projects.update_one(
                         {"_id": ObjectId(project_id)},
-                        {"$set": {
-                            "name": project_name,
-                            "description": project_desc
-                        }}
+                        {"$set": update_data}
                     )
-                    project_update_data = {'type': 'project_update', 'name': project_name, 'description': project_desc}
-                    yield f"data: {json.dumps(project_update_data)}\n\n"
+                    if project_name and project_desc:
+                        project_update_data = {'type': 'project_update', 'name': project_name, 'description': project_desc}
+                        yield f"data: {json.dumps(project_update_data)}\n\n"
                 
                 # Stream response message character by character
                 message = final_response.get('message', '')
@@ -999,8 +1027,12 @@ async def project_chat_stream(
                 else:
                     logger.warning("No message to stream - response.get('message') is empty")
                 
-                # Send completion
-                completion_data = {'type': 'complete', 'recommendationCount': len(final_response.get('recommendations', []))}
+                # Send completion with threadId
+                completion_data = {
+                    'type': 'complete', 
+                    'recommendationCount': len(final_response.get('recommendations', [])),
+                    'threadId': thread_id
+                }
                 yield f"data: {json.dumps(completion_data)}\n\n"
                 logger.info("Streaming complete")
             
@@ -1047,22 +1079,29 @@ async def project_chat(
         if not prompt:
             raise HTTPException(status_code=400, detail="Prompt is required")
         
+        # Get thread_id from request if provided, otherwise use project's threadId
+        thread_id = request.get('threadId') or project.get('threadId')
+        
         # Run supervisor agent
         response = await supervisor_agent.run(
             prompt=prompt,
             user_id=current_user['user_id'],
             project_id=project_id,
-            thread_id=project.get('threadId')
+            thread_id=thread_id
         )
         
-        # Update project with AI-generated name and description
+        # Update project with AI-generated name, description, and threadId
+        update_data = {}
         if response.get('projectName') and response.get('projectDescription'):
+            update_data['name'] = response['projectName']
+            update_data['description'] = response['projectDescription']
+        if response.get('threadId'):
+            update_data['threadId'] = response['threadId']
+        
+        if update_data:
             await db.projects.update_one(
                 {"_id": ObjectId(project_id)},
-                {"$set": {
-                    "name": response['projectName'],
-                    "description": response['projectDescription']
-                }}
+                {"$set": update_data}
             )
         
         return response
