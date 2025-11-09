@@ -71,10 +71,12 @@ class DrewAPITester:
         """Test POST /api/user/register"""
         print("\n=== Testing User Registration ===")
         
-        # Test successful registration
+        # Test successful registration with unique email
+        import time
+        timestamp = int(time.time())
         user_data = {
-            "username": "sarah_johnson",
-            "email": "sarah.johnson@example.com",
+            "username": f"sarah_johnson_{timestamp}",
+            "email": f"sarah.johnson.{timestamp}@example.com",
             "password": "SecurePass123!"
         }
         
