@@ -838,7 +838,7 @@ async def get_recommendation(
     if rec.get('activityId') and ObjectId.is_valid(rec['activityId']):
         activity = await db.activities.find_one({"_id": ObjectId(rec['activityId'])})
         if activity:
-            rec['activity'] = serialize_doc(activity)
+            rec['activityDetails'] = serialize_doc(activity)
     
     # Populate offerings
     if rec.get('offeringIds'):
