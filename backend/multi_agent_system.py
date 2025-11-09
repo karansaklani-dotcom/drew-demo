@@ -558,11 +558,18 @@ class SupervisorAgent:
             "agent_states": []
         }
         
-        # Run the graph
-        config = {"configurable": {"thread_id": thread_id}}
+        # Run the graph with checkpointing for conversation history
+        config = {
+            "configurable": {
+                "thread_id": thread_id,
+                "checkpoint_ns": f"project_{project_id}"
+            }
+        }
         
         try:
+            logger.info(f"Invoking graph with thread_id: {thread_id}")
             final_state = await self.graph.ainvoke(initial_state, config)
+            logger.info(f"Graph execution complete. Generated {len(final_state.get('recommendations', []))} recommendations")
             
             return {
                 "message": final_state["final_response"],
