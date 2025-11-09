@@ -425,8 +425,17 @@ Create an enhanced itinerary. Return JSON array of items with: duration, title, 
             except Exception as e:
                 logger.error(f"Failed to update itinerary: {e}")
         
-        state["agent_history"].append("itinerary_builder")
-        state["next_agent"] = "offerings"
+        # Append to agent history - check for duplicates
+        agent_history = state.get("agent_history", [])
+        if "itinerary_builder" not in agent_history:
+            agent_history.append("itinerary_builder")
+            state["agent_history"] = agent_history
+        
+        # Route to offerings only if not already processed
+        if "offerings" not in agent_history:
+            state["next_agent"] = "offerings"
+        else:
+            state["next_agent"] = None
         
         return state
 
