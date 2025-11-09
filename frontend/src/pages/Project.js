@@ -145,6 +145,10 @@ const Project = () => {
         }
     };
 
+    const sendMessage = () => {
+        handleSendMessage();
+    };
+
     const handleKeyPress = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
