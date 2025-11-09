@@ -972,53 +972,56 @@ async def project_chat_stream(
             
             # Send initial state
             yield f"data: {json.dumps({'type': 'start', 'message': 'Starting AI agents...'})}\n\n"
-            await asyncio.sleep(0.1)
             
-            # Run agent with streaming state updates
-            # We'll modify supervisor to yield states
-            response = await supervisor_agent.run(
+            # Stream agent execution in real-time
+            final_response = None
+            async for event in supervisor_agent.stream(
                 prompt=prompt,
                 user_id=current_user['user_id'],
                 project_id=project_id,
                 thread_id=project.get('threadId')
-            )
+            ):
+                if event.get('type') == 'agent_state':
+                    # Stream agent state immediately
+                    yield f"data: {json.dumps(event)}\n\n"
+                    await asyncio.sleep(0.05)
+                
+                elif event.get('type') == 'complete':
+                    # Store final response
+                    final_response = event
             
-            # Stream agent states
-            for state in response.get('agentStates', []):
-                yield f"data: {json.dumps({'type': 'agent_state', 'state': state})}\n\n"
-                await asyncio.sleep(0.1)
-            
-            # Stream project updates
-            project_name = response.get('projectName')
-            project_desc = response.get('projectDescription')
-            
-            if project_name and project_desc:
-                await db.projects.update_one(
-                    {"_id": ObjectId(project_id)},
-                    {"$set": {
-                        "name": project_name,
-                        "description": project_desc
-                    }}
-                )
-                project_update_data = {'type': 'project_update', 'name': project_name, 'description': project_desc}
-                yield f"data: {json.dumps(project_update_data)}\n\n"
-            
-            # Stream response message character by character
-            message = response.get('message', '')
-            logger.info(f"Streaming message: {len(message)} characters")
-            
-            if message:
-                for i in range(0, len(message), 10):  # 10 chars at a time
-                    chunk = message[i:i+10]
-                    yield f"data: {json.dumps({'type': 'message_chunk', 'chunk': chunk})}\n\n"
-                    await asyncio.sleep(0.03)
-            else:
-                logger.warning("No message to stream - response.get('message') is empty")
-            
-            # Send completion
-            completion_data = {'type': 'complete', 'recommendationCount': len(response.get('recommendations', []))}
-            yield f"data: {json.dumps(completion_data)}\n\n"
-            logger.info("Streaming complete")
+            # Update project with AI-generated name/description
+            if final_response:
+                project_name = final_response.get('projectName')
+                project_desc = final_response.get('projectDescription')
+                
+                if project_name and project_desc:
+                    await db.projects.update_one(
+                        {"_id": ObjectId(project_id)},
+                        {"$set": {
+                            "name": project_name,
+                            "description": project_desc
+                        }}
+                    )
+                    project_update_data = {'type': 'project_update', 'name': project_name, 'description': project_desc}
+                    yield f"data: {json.dumps(project_update_data)}\n\n"
+                
+                # Stream response message character by character
+                message = final_response.get('message', '')
+                logger.info(f"Streaming message: {len(message)} characters")
+                
+                if message:
+                    for i in range(0, len(message), 10):  # 10 chars at a time
+                        chunk = message[i:i+10]
+                        yield f"data: {json.dumps({'type': 'message_chunk', 'chunk': chunk})}\n\n"
+                        await asyncio.sleep(0.03)
+                else:
+                    logger.warning("No message to stream - response.get('message') is empty")
+                
+                # Send completion
+                completion_data = {'type': 'complete', 'recommendationCount': len(final_response.get('recommendations', []))}
+                yield f"data: {json.dumps(completion_data)}\n\n"
+                logger.info("Streaming complete")
             
         except Exception as e:
             logger.error(f"Streaming error: {e}", exc_info=True)
