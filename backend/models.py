@@ -127,24 +127,28 @@ class ItineraryItem(BaseModel):
     title: str
     description: str
 
-class EventCreate(BaseModel):
+class ActivityCreate(BaseModel):
     title: str
     description: str
-    longDescription: str
+    longDescription: Optional[str] = None
+    shortDescription: Optional[str] = None
     price: float
     location: str
     city: str
     state: str
-    date: str
+    date: Optional[str] = None
     category: str
-    images: List[str]
-    host: HostInfo
+    images: List[str] = []
+    thumbnailUrl: Optional[str] = None
+    host: Optional[HostInfo] = None
     included: List[EventItem] = []
     required: List[EventItem] = []
     itinerary: List[ItineraryItem] = []
     freeCancellation: bool = False
+    offerings: List[str] = []  # List of offering IDs
+    preRequisites: List[PreRequisite] = []
 
-class Event(EventCreate):
+class Activity(ActivityCreate):
     id: str = Field(alias="_id")
     rating: float = 0.0
     reviewCount: int = 0
@@ -155,3 +159,28 @@ class Event(EventCreate):
         populate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
+
+class ActivityUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    longDescription: Optional[str] = None
+    shortDescription: Optional[str] = None
+    price: Optional[float] = None
+    location: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    date: Optional[str] = None
+    category: Optional[str] = None
+    images: Optional[List[str]] = None
+    thumbnailUrl: Optional[str] = None
+    host: Optional[HostInfo] = None
+    included: Optional[List[EventItem]] = None
+    required: Optional[List[EventItem]] = None
+    itinerary: Optional[List[ItineraryItem]] = None
+    freeCancellation: Optional[bool] = None
+    offerings: Optional[List[str]] = None
+    preRequisites: Optional[List[PreRequisite]] = None
+
+# Keep Event models for backward compatibility
+EventCreate = ActivityCreate
+Event = Activity
