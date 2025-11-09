@@ -130,15 +130,18 @@
 
   - task: "User update endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented PUT /user/{id} endpoint for updating user profile with authorization check"
+      - working: true
+        agent: "testing"
+        comment: "✅ PUT /api/user/{id} working correctly (200). Authorization check working - users can only update their own profiles. firstName, lastName, role updates working properly."
 
   - task: "Organization CRUD endpoints"
     implemented: true
