@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 class SupervisorState(TypedDict):
     """State for supervisor agent"""
-    messages: Annotated[List, operator.add]
+    messages: Annotated[List, operator.add]  # Keep for conversation history
     user_prompt: str
     user_id: str
     project_id: str
@@ -34,10 +34,10 @@ class SupervisorState(TypedDict):
     
     # Agent routing
     next_agent: Optional[str]
-    agent_history: Annotated[List, operator.add]
+    agent_history: List[str]  # Changed: No operator.add to prevent duplication
     
     # Results
-    recommendations: Annotated[List, operator.add]
+    recommendations: List[Dict[str, Any]]  # Changed: No operator.add
     current_recommendation_id: Optional[str]
     
     # Response
@@ -47,7 +47,7 @@ class SupervisorState(TypedDict):
     metadata: Dict[str, Any]
     
     # Agent states for streaming
-    agent_states: Annotated[List, operator.add]
+    agent_states: List[Dict[str, Any]]  # Changed: No operator.add
 
 # ============================================================================
 # RECOMMENDATION AGENT
