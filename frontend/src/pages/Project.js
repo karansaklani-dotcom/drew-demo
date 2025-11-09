@@ -37,6 +37,7 @@ const Project = () => {
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSending, setIsSending] = useState(false);
+    const [agentState, setAgentState] = useState(null); // 'searching', 'reflecting', 'customizing'
     const messagesEndRef = useRef(null);
     const chatPanelRef = useRef(null);
     const hasAutoSent = useRef(false);
