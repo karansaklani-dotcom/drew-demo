@@ -16,6 +16,7 @@ import {
 const Project = () => {
     const { projectId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [project, setProject] = useState(null);
     const [recommendations, setRecommendations] = useState([]);
     const [messages, setMessages] = useState([]);
@@ -24,11 +25,24 @@ const Project = () => {
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef(null);
     const chatPanelRef = useRef(null);
+    const hasAutoSent = useRef(false);
 
     useEffect(() => {
         loadProject();
         loadRecommendations();
     }, [projectId]);
+
+    // Auto-send initial prompt if provided
+    useEffect(() => {
+        if (location.state?.initialPrompt && !hasAutoSent.current && project) {
+            hasAutoSent.current = true;
+            setInputValue(location.state.initialPrompt);
+            // Delay to ensure UI is ready
+            setTimeout(() => {
+                handleSendMessage(location.state.initialPrompt);
+            }, 500);
+        }
+    }, [location.state, project]);
 
     useEffect(() => {
         scrollToBottom();
