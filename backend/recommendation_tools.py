@@ -20,6 +20,8 @@ class CreateRecommendationInput(BaseModel):
     activity_id: str = Field(description="ID of the activity to recommend")
     reason: str = Field(description="Why this activity is recommended for the user")
     score: float = Field(description="Match score between 0 and 1")
+    customized_title: Optional[str] = Field(None, description="Customized title that fits the user's specific use case (optional)")
+    customized_description: Optional[str] = Field(None, description="Customized description explaining how this activity meets their needs (optional)")
 
 class ReflectOnActivityInput(BaseModel):
     """Input for reflecting on activity match"""
