@@ -133,11 +133,11 @@ CONTEXT: <json>
         
         for line in content.split("\n"):
             if line.startswith("PROJECT_NAME:"):
-                project_name = line.split("PROJECT_NAME:")[1].strip()
+                project_name = line.split("PROJECT_NAME:")[1].strip().strip('"')
             elif line.startswith("PROJECT_DESCRIPTION:"):
-                project_description = line.split("PROJECT_DESCRIPTION:")[1].strip()
+                project_description = line.split("PROJECT_DESCRIPTION:")[1].strip().strip('"')
             elif line.startswith("SEARCH_QUERY:"):
-                search_query = line.split("SEARCH_QUERY:")[1].strip()
+                search_query = line.split("SEARCH_QUERY:")[1].strip().strip('"')
             elif line.startswith("FILTERS:"):
                 try:
                     import json
