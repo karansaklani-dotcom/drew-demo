@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from "react";
 import { useUserMe, useUserRegister, useUserVerify } from "../hooks/use-user";
 import { useOnboardingComplete } from "../hooks/use-onboarding";
-import { api } from "../utils/api";
+import { api, clearAuthToken, getAuthToken } from "../utils/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { endpoints } from "../utils/endpoints";
 
