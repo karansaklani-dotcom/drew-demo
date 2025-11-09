@@ -353,9 +353,9 @@ class SupervisorAgent:
         self.itinerary_agent = ItineraryBuilderAgent(self.llm, tools)
         self.offerings_agent = OfferingsAgent(self.llm, tools)
         
-        # Build graph
-        self.graph = self._build_graph()
+        # Build graph and checkpointer
         self.checkpointer = MemorySaver()
+        self.graph = self._build_graph()
     
     def _build_graph(self) -> StateGraph:
         """Build the supervisor workflow graph"""
