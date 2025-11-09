@@ -145,15 +145,18 @@
 
   - task: "Organization CRUD endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented POST /organization, GET /organization/{id}, PUT /organization/{id}, GET /organization with pagination and search"
+      - working: true
+        agent: "testing"
+        comment: "✅ All organization CRUD operations working: POST /api/organization (201), GET /api/organization/{id} (200), PUT /api/organization/{id} (200), GET /api/organization with pagination (200). Proper response format with {rows, count, total, limit, offset}."
 
   - task: "Activity/Event endpoints with filters"
     implemented: true
