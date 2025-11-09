@@ -185,13 +185,10 @@ const EventDiscovery = () => {
                     </div>
 
                     <div className="flex flex-col items-center justify-center mb-4">
-                        <h1 className="text-4xl font-bold  text-gray-900">
-                            Build your event with{" "}
-                            <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                Drew
-                            </span>
+                        <h1 className="text-4xl font-bold text-black">
+                            Build your event with Drew
                         </h1>
-                        <p className="text-lg text-gray-600">
+                        <p className="text-lg text-gray-700">
                             Find and curate personalized events leveraging AI
                         </p>
                     </div>
