@@ -96,10 +96,19 @@ async def search_activities_tool(
 async def create_recommendation_tool(
     activity_id: str,
     reason: str,
-    score: float
+    score: float,
+    customized_title: Optional[str] = None,
+    customized_description: Optional[str] = None
 ) -> str:
     """
     Create a recommendation for an activity and add it to the current project.
+    
+    IMPORTANT: Customize the activity for the user's specific use case!
+    - customized_title: Rewrite the activity title to fit their needs
+      Example: "Corporate Yoga Session" -> "Festive Holiday Yoga & Wellness for Your Team"
+    - customized_description: Explain how this activity meets their specific requirements
+      Example: "Perfect for your Christmas party with 15 people - we'll include holiday themes..."
+    
     Returns confirmation of the created recommendation.
     """
     if not _agent_tools_instance:
