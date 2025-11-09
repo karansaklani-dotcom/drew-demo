@@ -59,7 +59,9 @@ class AgentTools:
         user_id: str,
         activity: Dict[str, Any],
         reason_to_recommend: str,
-        score: float = 0.0
+        score: float = 0.0,
+        customized_title: Optional[str] = None,
+        customized_description: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Create or update a recommendation for a project
@@ -71,6 +73,8 @@ class AgentTools:
             activity: Full activity document
             reason_to_recommend: Why this activity is recommended
             score: Recommendation score (0-1)
+            customized_title: Optional customized title for the user's use case
+            customized_description: Optional customized description for the user's use case
             
         Returns:
             Created/updated recommendation document
