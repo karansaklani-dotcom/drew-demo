@@ -116,17 +116,10 @@ const Project = () => {
             };
             setMessages((prev) => [...prev, loadingMessage]);
 
-            // Simulate agent state progression
-            setAgentState('searching');
-            setTimeout(() => setAgentState('reflecting'), 1000);
-            setTimeout(() => setAgentState('customizing'), 2000);
-
             const response = await api(`project/${projectId}/chat`, {
                 method: 'POST',
                 data: { prompt: content },
             });
-            
-            setAgentState(null);
 
             // Remove loading message and add actual response
             setMessages((prev) => {
