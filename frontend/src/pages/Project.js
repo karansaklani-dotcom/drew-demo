@@ -75,17 +75,20 @@ const Project = () => {
         }
     };
 
-    const sendMessage = async () => {
-        if (!inputValue.trim() || isSending) return;
+    const handleSendMessage = async (messageContent = null) => {
+        const content = messageContent || inputValue;
+        if (!content.trim() || isSending) return;
 
         const userMessage = {
             type: 'user',
-            content: inputValue,
+            content: content,
             timestamp: new Date(),
         };
 
         setMessages((prev) => [...prev, userMessage]);
-        setInputValue('');
+        if (!messageContent) {
+            setInputValue('');
+        }
         setIsSending(true);
 
         try {
