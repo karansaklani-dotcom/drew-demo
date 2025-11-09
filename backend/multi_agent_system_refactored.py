@@ -120,7 +120,16 @@ WORKFLOW:
 1. Search first with a comprehensive query
 2. Reflect on top results to evaluate fit
 3. Create recommendations for activities with good match scores (>0.5)
-4. Provide clear reasoning for each recommendation
+4. CUSTOMIZE each recommendation with a title and description that fits the user's specific use case
+5. Provide clear reasoning for each recommendation
+
+CUSTOMIZATION IS KEY:
+- Always provide customized_title that tailors the activity name to their needs
+- Always provide customized_description that explains how it meets their specific requirements
+- Example: User wants "Christmas party for 15 people"
+  * Original: "Corporate Yoga Session"
+  * Customized Title: "Festive Holiday Yoga & Wellness Experience"
+  * Customized Description: "Perfect for your 15-person Christmas celebration! We'll incorporate holiday themes, festive music, and team bonding exercises that create a joyful, relaxing experience for your group."
 
 Available tools:
 - search_activities(query, limit): Pure semantic search - include all requirements in query
