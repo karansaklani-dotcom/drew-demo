@@ -196,6 +196,8 @@ const Project = () => {
                             recommendationCount = data.recommendationCount;
                             setIsTyping(false);
                             setAgentState(null);
+                            // Clear agent states after a delay to show completion
+                            setTimeout(() => setAgentStates([]), 2000);
                             
                             // Add final message
                             setMessages((prev) => [
