@@ -54,6 +54,8 @@ logger = logging.getLogger(__name__)
 openai_api_key = os.environ.get('OPENAI_API_KEY')
 semantic_search_service = None
 recommendation_agent = None
+agent_tools = None
+supervisor_agent = None
 
 if openai_api_key:
     try:
@@ -65,6 +67,14 @@ if openai_api_key:
         recommendation_agent = RecommendationAgent(
             openai_api_key=openai_api_key,
             semantic_search_service=semantic_search_service
+        )
+        agent_tools = AgentTools(
+            semantic_search_service=semantic_search_service,
+            db=db
+        )
+        supervisor_agent = SupervisorAgent(
+            openai_api_key=openai_api_key,
+            tools=agent_tools
         )
         logger.info("AI services initialized successfully")
     except Exception as e:
