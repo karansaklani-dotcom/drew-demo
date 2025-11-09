@@ -1,211 +1,287 @@
-import React, { useState } from "react";
-import { Building, Mail, Globe, MapPin, Users, Save } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Building, Globe, Users, Edit2, Save, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "../ui/select";
-import { Textarea } from "../ui/textarea";
+    DropdownSelect,
+    DropdownSelectTrigger,
+    DropdownSelectContent,
+    DropdownSelectItem,
+} from "../ui/dropdown-select";
+import { useOrganizationUpdate } from "../../hooks/use-organization";
 import { useToast } from "../../hooks/use-toast";
+import { INDUSTRIES, COMPANY_SIZES } from "../../utils/constants";
 
-const BasicDetails = () => {
+const BasicDetails = ({ organization }) => {
     const { toast } = useToast();
+    const updateOrganization = useOrganizationUpdate();
     const [isEditing, setIsEditing] = useState(false);
+    const [isFieldEditing, setIsFieldEditing] = useState({});
     const [formData, setFormData] = useState({
-        name: "Acme Corporation",
-        email: "contact@acmecorp.com",
-        website: "https://acmecorp.com",
-        industry: "Technology",
-        companySize: "51-200",
-        description:
-            "Leading provider of innovative technology solutions for businesses worldwide.",
-        address: "123 Tech Street, San Francisco, CA 94105",
-        phone: "+1 (555) 123-4567",
+        name: organization?.name || "",
+        industry: organization?.industry || "",
+        companySize: organization?.companySize || "",
+        websiteUrl: organization?.websiteUrl || "",
     });
 
-    const handleSave = () => {
-        toast({
-            title: "Settings saved",
-            description: "Organization details have been updated successfully.",
-        });
-        setIsEditing(false);
+    // Update form data when organization changes
+    useEffect(() => {
+        if (organization) {
+            setFormData({
+                name: organization.name || "",
+                industry: organization.industry || "",
+                companySize: organization.companySize || "",
+                websiteUrl: organization.websiteUrl || "",
+            });
+        }
+    }, [organization]);
+
+    const handleSave = async () => {
+        try {
+            await updateOrganization.mutateAsync({
+                id: organization.id,
+                data: formData,
+            });
+            toast({
+                title: "Settings saved",
+                description:
+                    "Organization details have been updated successfully.",
+            });
+            setIsEditing(false);
+            setIsFieldEditing({});
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description:
+                    error.message ||
+                    "Failed to update organization details. Please try again.",
+            });
+        }
+    };
+
+    const handleFieldSave = async (field) => {
+        try {
+            await updateOrganization.mutateAsync({
+                id: organization.id,
+                data: { [field]: formData[field] },
+            });
+            toast({
+                title: "Field updated",
+                description: `${field} has been updated successfully.`,
+            });
+            setIsFieldEditing({ ...isFieldEditing, [field]: false });
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description:
+                    error.message ||
+                    "Failed to update field. Please try again.",
+            });
+        }
     };
 
     const handleChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
+    const handleCancel = () => {
+        setFormData({
+            name: organization.name || "",
+            industry: organization.industry || "",
+            companySize: organization.companySize || "",
+            websiteUrl: organization.websiteUrl || "",
+        });
+        setIsEditing(false);
+        setIsFieldEditing({});
+    };
+
+    const FieldWrapper = ({ field, label, icon: Icon, children }) => {
+        const isFieldEditMode = isFieldEditing[field] || isEditing;
+        const isReadOnly = !isFieldEditMode;
+
+        return (
+            <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                        {Icon && <Icon className="h-4 w-4 text-gray-500" />}
+                        {label}
+                    </Label>
+                    {!isEditing && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                                setIsFieldEditing({
+                                    ...isFieldEditing,
+                                    [field]: true,
+                                })
+                            }
+                            className="h-8 px-2"
+                        >
+                            <Edit2 className="h-4 w-4" />
+                        </Button>
+                    )}
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="flex-1">{children}</div>
+                    {isFieldEditMode && !isEditing && (
+                        <div className="flex gap-1">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleFieldSave(field)}
+                                className="h-8 px-2"
+                            >
+                                <Save className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                    setIsFieldEditing({
+                                        ...isFieldEditing,
+                                        [field]: false,
+                                    })
+                                }
+                                className="h-8 px-2"
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-2xl font-semibold text-gray-900">
-                        Basic Details
-                    </h2>
-                    <p className="text-sm text-gray-600 mt-1">
-                        Manage your organization's basic information
-                    </p>
-                </div>
-                {!isEditing ? (
-                    <Button onClick={() => setIsEditing(true)}>
-                        Edit Details
-                    </Button>
-                ) : (
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={() => setIsEditing(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button onClick={handleSave}>
-                            <Save className="mr-2 h-4 w-4" />
-                            Save Changes
-                        </Button>
-                    </div>
-                )}
+            <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900">
+                    Basic Details
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                    Manage your organization's basic information
+                </p>
             </div>
 
-            <div className="border-t pt-6 space-y-6">
-                <div className="space-y-2">
-                    <Label htmlFor="name">
-                        <Building className="inline h-4 w-4 mr-2" />
-                        Organization Name
-                    </Label>
-                    <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => handleChange("name", e.target.value)}
-                        disabled={!isEditing}
-                        placeholder="Your organization name"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor="email">
-                        <Mail className="inline h-4 w-4 mr-2" />
-                        Contact Email
-                    </Label>
-                    <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => handleChange("email", e.target.value)}
-                        disabled={!isEditing}
-                        placeholder="contact@example.com"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                        id="phone"
-                        value={formData.phone}
-                        onChange={(e) => handleChange("phone", e.target.value)}
-                        disabled={!isEditing}
-                        placeholder="+1 (555) 123-4567"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor="website">
-                        <Globe className="inline h-4 w-4 mr-2" />
-                        Website
-                    </Label>
-                    <Input
-                        id="website"
-                        value={formData.website}
-                        onChange={(e) =>
-                            handleChange("website", e.target.value)
-                        }
-                        disabled={!isEditing}
-                        placeholder="https://example.com"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor="industry">Industry</Label>
-                    <Select
-                        value={formData.industry}
-                        onValueChange={(value) =>
-                            handleChange("industry", value)
-                        }
-                        disabled={!isEditing}
+            <div className="border-t border-gray-200 pt-6">
+                <div className="grid grid-cols-2 gap-6">
+                    <FieldWrapper
+                        field="name"
+                        label="Organization Name"
+                        icon={Building}
                     >
-                        <SelectTrigger>
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Technology">Technology</SelectItem>
-                            <SelectItem value="Healthcare">Healthcare</SelectItem>
-                            <SelectItem value="Finance">Finance</SelectItem>
-                            <SelectItem value="Education">Education</SelectItem>
-                            <SelectItem value="Retail">Retail</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+                        <Input
+                            value={formData.name}
+                            onChange={(e) =>
+                                handleChange("name", e.target.value)
+                            }
+                            disabled={!isEditing && !isFieldEditing.name}
+                            placeholder="Your organization name"
+                            className="h-12"
+                        />
+                    </FieldWrapper>
 
-                <div className="space-y-2">
-                    <Label htmlFor="companySize">
-                        <Users className="inline h-4 w-4 mr-2" />
-                        Company Size
-                    </Label>
-                    <Select
-                        value={formData.companySize}
-                        onValueChange={(value) =>
-                            handleChange("companySize", value)
-                        }
-                        disabled={!isEditing}
+                    <FieldWrapper
+                        field="industry"
+                        label="Industry"
+                        icon={Building}
                     >
-                        <SelectTrigger>
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="1-10">1-10 employees</SelectItem>
-                            <SelectItem value="11-50">11-50 employees</SelectItem>
-                            <SelectItem value="51-200">51-200 employees</SelectItem>
-                            <SelectItem value="201-1000">
-                                201-1000 employees
-                            </SelectItem>
-                            <SelectItem value="1000+">1000+ employees</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+                        <DropdownSelect
+                            value={formData.industry}
+                            onValueChange={(value) =>
+                                handleChange("industry", value)
+                            }
+                            disabled={!isEditing && !isFieldEditing.industry}
+                        >
+                            <DropdownSelectTrigger
+                                disabled={
+                                    !isEditing && !isFieldEditing.industry
+                                }
+                                className={`h-12 ${
+                                    !isEditing && !isFieldEditing.industry
+                                        ? "bg-gray-50"
+                                        : ""
+                                }`}
+                                placeholder="Select industry"
+                            >
+                                {INDUSTRIES.find(
+                                    (i) => i.value === formData.industry
+                                )?.label || "Select industry"}
+                            </DropdownSelectTrigger>
+                            <DropdownSelectContent>
+                                {INDUSTRIES.map((industry) => (
+                                    <DropdownSelectItem
+                                        key={industry.value}
+                                        value={industry.value}
+                                    >
+                                        {industry.label}
+                                    </DropdownSelectItem>
+                                ))}
+                            </DropdownSelectContent>
+                        </DropdownSelect>
+                    </FieldWrapper>
 
-                <div className="space-y-2">
-                    <Label htmlFor="address">
-                        <MapPin className="inline h-4 w-4 mr-2" />
-                        Address
-                    </Label>
-                    <Input
-                        id="address"
-                        value={formData.address}
-                        onChange={(e) =>
-                            handleChange("address", e.target.value)
-                        }
-                        disabled={!isEditing}
-                        placeholder="Your organization address"
-                    />
-                </div>
+                    <FieldWrapper
+                        field="companySize"
+                        label="Company Size"
+                        icon={Users}
+                    >
+                        <DropdownSelect
+                            value={formData.companySize}
+                            onValueChange={(value) =>
+                                handleChange("companySize", value)
+                            }
+                            disabled={!isEditing && !isFieldEditing.companySize}
+                        >
+                            <DropdownSelectTrigger
+                                disabled={
+                                    !isEditing && !isFieldEditing.companySize
+                                }
+                                className={`h-12 ${
+                                    !isEditing && !isFieldEditing.companySize
+                                        ? "bg-gray-50"
+                                        : ""
+                                }`}
+                                placeholder="Select company size"
+                            >
+                                {COMPANY_SIZES.find(
+                                    (s) => s.value === formData.companySize
+                                )?.label || "Select company size"}
+                            </DropdownSelectTrigger>
+                            <DropdownSelectContent>
+                                {COMPANY_SIZES.map((size) => (
+                                    <DropdownSelectItem
+                                        key={size.value}
+                                        value={size.value}
+                                    >
+                                        {size.label}
+                                    </DropdownSelectItem>
+                                ))}
+                            </DropdownSelectContent>
+                        </DropdownSelect>
+                    </FieldWrapper>
 
-                <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                        id="description"
-                        value={formData.description}
-                        onChange={(e) =>
-                            handleChange("description", e.target.value)
-                        }
-                        disabled={!isEditing}
-                        placeholder="Brief description of your organization"
-                        rows={4}
-                    />
+                    <FieldWrapper
+                        field="websiteUrl"
+                        label="Website URL"
+                        icon={Globe}
+                    >
+                        <Input
+                            type="url"
+                            value={formData.websiteUrl}
+                            onChange={(e) =>
+                                handleChange("websiteUrl", e.target.value)
+                            }
+                            disabled={!isEditing && !isFieldEditing.websiteUrl}
+                            placeholder="https://example.com"
+                            className="h-12"
+                        />
+                    </FieldWrapper>
                 </div>
             </div>
         </div>

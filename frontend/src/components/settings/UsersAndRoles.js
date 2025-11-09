@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-    UserPlus,
-    Mail,
-    Shield,
-    MoreVertical,
-    Trash2,
-    Edit,
-} from "lucide-react";
+import { UserPlus, Shield, Users, UserCheck } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -26,13 +19,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "../ui/dialog";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Badge } from "../ui/badge";
 import { useToast } from "../../hooks/use-toast";
 
 const UsersAndRoles = () => {
@@ -107,37 +93,15 @@ const UsersAndRoles = () => {
         });
     };
 
-    const getRoleBadgeColor = (role) => {
-        switch (role) {
-            case "Admin":
-                return "bg-red-100 text-red-800";
-            case "Manager":
-                return "bg-blue-100 text-blue-800";
-            case "Member":
-                return "bg-green-100 text-green-800";
-            default:
-                return "bg-gray-100 text-gray-800";
-        }
-    };
-
-    const getStatusBadgeColor = (status) => {
-        switch (status) {
-            case "Active":
-                return "bg-green-100 text-green-800";
-            case "Invited":
-                return "bg-yellow-100 text-yellow-800";
-            case "Inactive":
-                return "bg-gray-100 text-gray-800";
-            default:
-                return "bg-gray-100 text-gray-800";
-        }
-    };
+    const admins = users.filter((u) => u.role === "Admin");
+    const managers = users.filter((u) => u.role === "Manager");
+    const members = users.filter((u) => u.role === "Member");
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h2 className="text-2xl font-semibold text-gray-900">
+                    <h2 className="text-2xl font-bold text-gray-900">
                         Users and Roles
                     </h2>
                     <p className="text-sm text-gray-600 mt-1">
@@ -149,7 +113,7 @@ const UsersAndRoles = () => {
                     onOpenChange={setIsAddDialogOpen}
                 >
                     <DialogTrigger asChild>
-                        <Button>
+                        <Button className="bg-black hover:bg-gray-800 text-white">
                             <UserPlus className="mr-2 h-4 w-4" />
                             Add User
                         </Button>
@@ -203,11 +167,15 @@ const UsersAndRoles = () => {
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Admin">Admin</SelectItem>
+                                        <SelectItem value="Admin">
+                                            Admin
+                                        </SelectItem>
                                         <SelectItem value="Manager">
                                             Manager
                                         </SelectItem>
-                                        <SelectItem value="Member">Member</SelectItem>
+                                        <SelectItem value="Member">
+                                            Member
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -219,90 +187,144 @@ const UsersAndRoles = () => {
                             >
                                 Cancel
                             </Button>
-                            <Button onClick={handleAddUser}>Send Invitation</Button>
+                            <Button
+                                onClick={handleAddUser}
+                                className="bg-black hover:bg-gray-800 text-white"
+                            >
+                                Send Invitation
+                            </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
             </div>
 
+            {/* Role Summary - Three Separate Rounded Sections */}
             <div className="grid grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4 border border-red-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-red-900">
-                                Admins
-                            </p>
-                            <p className="text-2xl font-bold text-red-900 mt-1">
-                                {users.filter((u) => u.role === "Admin").length}
-                            </p>
-                        </div>
-                        <Shield className="h-8 w-8 text-red-600" />
+                {/* Admins Section */}
+                <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 relative">
+                    <div className="absolute top-4 right-4">
+                        <Shield className="h-6 w-6 text-gray-700" />
                     </div>
-                    <p className="text-xs text-red-700 mt-2">
-                        Full access to all settings
-                    </p>
+                    <div>
+                        <p className="text-sm font-medium text-gray-900 mb-2">
+                            Admins
+                        </p>
+                        <p className="text-2xl font-bold text-gray-900 mb-1">
+                            {admins.length}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                            Full access to all settings
+                        </p>
+                    </div>
                 </div>
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-blue-900">
-                                Managers
-                            </p>
-                            <p className="text-2xl font-bold text-blue-900 mt-1">
-                                {users.filter((u) => u.role === "Manager").length}
-                            </p>
-                        </div>
-                        <Shield className="h-8 w-8 text-blue-600" />
+
+                {/* Managers Section */}
+                <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 relative">
+                    <div className="absolute top-4 right-4">
+                        <UserCheck className="h-6 w-6 text-gray-700" />
                     </div>
-                    <p className="text-xs text-blue-700 mt-2">
-                        Can manage team and events
-                    </p>
+                    <div>
+                        <p className="text-sm font-medium text-gray-900 mb-2">
+                            Managers
+                        </p>
+                        <p className="text-2xl font-bold text-gray-900 mb-1">
+                            {managers.length}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                            Can manage team and events
+                        </p>
+                    </div>
                 </div>
-                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-green-900">
-                                Members
-                            </p>
-                            <p className="text-2xl font-bold text-green-900 mt-1">
-                                {users.filter((u) => u.role === "Member").length}
-                            </p>
-                        </div>
-                        <Shield className="h-8 w-8 text-green-600" />
+
+                {/* Members Section */}
+                <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 relative">
+                    <div className="absolute top-4 right-4">
+                        <Users className="h-6 w-6 text-gray-700" />
                     </div>
-                    <p className="text-xs text-green-700 mt-2">
-                        Standard access level
-                    </p>
+                    <div>
+                        <p className="text-sm font-medium text-gray-900 mb-2">
+                            Members
+                        </p>
+                        <p className="text-2xl font-bold text-gray-900 mb-1">
+                            {members.length}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                            Standard access level
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div className="border rounded-lg overflow-hidden">
+            {/* Role Explanations */}
+            <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                <h3 className="text-sm font-semibold text-gray-900 mb-4">
+                    Role Permissions
+                </h3>
+                <div className="space-y-4">
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <Shield className="h-4 w-4 text-gray-700" />
+                            <span className="text-sm font-medium text-gray-900">
+                                Admin
+                            </span>
+                        </div>
+                        <p className="text-xs text-gray-600 ml-6">
+                            Full access to all organization settings, user
+                            management, and can modify critical configurations.
+                        </p>
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <UserCheck className="h-4 w-4 text-gray-700" />
+                            <span className="text-sm font-medium text-gray-900">
+                                Manager
+                            </span>
+                        </div>
+                        <p className="text-xs text-gray-600 ml-6">
+                            Can manage team members, create and edit events, but
+                            cannot modify organization settings.
+                        </p>
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <Users className="h-4 w-4 text-gray-700" />
+                            <span className="text-sm font-medium text-gray-900">
+                                Member
+                            </span>
+                        </div>
+                        <p className="text-xs text-gray-600 ml-6">
+                            Standard access to view and participate in events,
+                            limited to personal profile management.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Users Table */}
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
                 <table className="w-full">
-                    <thead className="bg-gray-50 border-b">
+                    <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
+                            <th className="text-left py-3 px-4 text-xs font-medium text-gray-700">
                                 User
                             </th>
-                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
+                            <th className="text-left py-3 px-4 text-xs font-medium text-gray-700">
                                 Role
                             </th>
-                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
+                            <th className="text-left py-3 px-4 text-xs font-medium text-gray-700">
                                 Status
                             </th>
-                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
+                            <th className="text-left py-3 px-4 text-xs font-medium text-gray-700">
                                 Joined
-                            </th>
-                            <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">
-                                Actions
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y">
+                    <tbody className="divide-y divide-gray-200">
                         {users.map((user) => (
                             <tr key={user.id} className="hover:bg-gray-50">
                                 <td className="py-3 px-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-medium">
+                                        <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-medium text-sm">
                                             {user.name
                                                 .split(" ")
                                                 .map((n) => n[0])
@@ -312,58 +334,30 @@ const UsersAndRoles = () => {
                                             <p className="text-sm font-medium text-gray-900">
                                                 {user.name}
                                             </p>
-                                            <p className="text-sm text-gray-500">
+                                            <p className="text-xs text-gray-500">
                                                 {user.email}
                                             </p>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="py-3 px-4">
-                                    <Badge
-                                        className={getRoleBadgeColor(user.role)}
-                                    >
+                                    <span className="text-sm text-gray-900">
                                         {user.role}
-                                    </Badge>
+                                    </span>
                                 </td>
                                 <td className="py-3 px-4">
-                                    <Badge
-                                        className={getStatusBadgeColor(
-                                            user.status
-                                        )}
+                                    <span
+                                        className={`text-xs ${
+                                            user.status === "Active"
+                                                ? "text-gray-900 font-medium"
+                                                : "text-gray-500"
+                                        }`}
                                     >
                                         {user.status}
-                                    </Badge>
+                                    </span>
                                 </td>
-                                <td className="py-3 px-4 text-sm text-gray-600">
+                                <td className="py-3 px-4 text-xs text-gray-600">
                                     {user.joinedDate}
-                                </td>
-                                <td className="py-3 px-4 text-right">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8"
-                                            >
-                                                <MoreVertical className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem>
-                                                <Edit className="mr-2 h-4 w-4" />
-                                                Edit Role
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem
-                                                className="text-red-600"
-                                                onClick={() =>
-                                                    handleDeleteUser(user.id)
-                                                }
-                                            >
-                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                Remove User
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
                                 </td>
                             </tr>
                         ))}

@@ -70,7 +70,11 @@ function App() {
                         />
                         <Route
                             path="/settings/organization"
-                            element={<OrganizationSettings />}
+                            element={
+                                <ProtectedRoute>
+                                    <OrganizationSettings />
+                                </ProtectedRoute>
+                            }
                         />
                     </Routes>
                     <Toaster />

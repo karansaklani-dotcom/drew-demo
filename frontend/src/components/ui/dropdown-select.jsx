@@ -27,6 +27,12 @@ export const DropdownSelect = ({
 
     // Close dropdown when clicking outside
     React.useEffect(() => {
+        if (disabled && open) {
+            setOpen(false);
+        }
+    }, [disabled, open]);
+
+    React.useEffect(() => {
         const handleClickOutside = (event) => {
             if (
                 containerRef.current &&
@@ -36,7 +42,7 @@ export const DropdownSelect = ({
             }
         };
 
-        if (open) {
+        if (open && !disabled) {
             document.addEventListener("mousedown", handleClickOutside);
             // Close on escape key
             const handleEscape = (event) => {
@@ -50,13 +56,13 @@ export const DropdownSelect = ({
                 document.removeEventListener("keydown", handleEscape);
             };
         }
-    }, [open]);
+    }, [open, disabled]);
 
     return (
         <DropdownSelectContext.Provider
             value={{
-                open,
-                setOpen,
+                open: disabled ? false : open,
+                setOpen: disabled ? () => {} : setOpen,
                 value,
                 onValueChange,
             }}
@@ -72,7 +78,7 @@ export const DropdownSelect = ({
 };
 
 export const DropdownSelectTrigger = React.forwardRef(
-    ({ className, children, placeholder, ...props }, ref) => {
+    ({ className, children, placeholder, disabled, ...props }, ref) => {
         const { open, setOpen, value } = React.useContext(DropdownSelectContext);
         const triggerRef = React.useRef(null);
         React.useImperativeHandle(ref, () => triggerRef.current);
@@ -81,10 +87,12 @@ export const DropdownSelectTrigger = React.forwardRef(
             <button
                 ref={triggerRef}
                 type="button"
-                onClick={() => setOpen(!open)}
+                onClick={() => !disabled && setOpen(!open)}
+                disabled={disabled}
                 className={cn(
                     "flex h-12 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
-                    open && "ring-1 ring-ring",
+                    open && !disabled && "ring-1 ring-ring",
+                    disabled && "bg-gray-50",
                     className
                 )}
                 {...props}
