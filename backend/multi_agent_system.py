@@ -534,10 +534,12 @@ class SupervisorAgent:
         project_id: str,
         thread_id: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Run the supervisor agent"""
+        """Run the supervisor agent with thread context management"""
         
         if not thread_id:
             thread_id = str(uuid.uuid4())
+        
+        logger.info(f"Running supervisor for project {project_id} with thread {thread_id}")
         
         # Initialize state
         initial_state: SupervisorState = {
