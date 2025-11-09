@@ -39,7 +39,7 @@ SUMMARIZATION_THRESHOLD=6000                     # Token limit
 
 | Service | Internal URL | External URL |
 |---------|--------------|--------------|
-| Main Backend | http://localhost:8001 | https://agentic-threads.preview.emergentagent.com |
+| Main Backend | http://localhost:8001 | https://drew-auth-service.preview.emergentagent.com |
 | Agentic Backend | http://localhost:8002 | (Configure if needed) |
 | MongoDB | mongodb://localhost:27017 | N/A |
 
