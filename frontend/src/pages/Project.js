@@ -103,7 +103,7 @@ const Project = () => {
 
             const response = await api(`project/${projectId}/chat`, {
                 method: 'POST',
-                data: { prompt: inputValue },
+                data: { prompt: content },
             });
 
             // Remove loading message and add actual response
