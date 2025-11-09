@@ -61,22 +61,25 @@ class RecommendationAgent:
         self.tools = tools
     
     async def run(self, state: SupervisorState) -> SupervisorState:
-        """Execute recommendation agent"""
+        """Execute recommendation agent with explicit steps: Plan → Search → Reflect → Add"""
         logger.info("🎯 Running Recommendation Agent")
         
-        # Add agent state
+        # STEP 1: PLAN
         state["agent_states"].append({
             "agent": "recommendation",
-            "status": "started",
-            "message": "Analyzing your request..."
+            "status": "planning",
+            "step": 1,
+            "message": "📋 Step 1/4: Planning search strategy..."
         })
         
-        system_prompt = """You are a recommendation specialist. Your job is to:
-1. Generate a concise project name and description from user prompt
-2. Understand user requirements from their prompt and conversation history
-3. Search for relevant activities using semantic search
-4. Reflect on whether activities fit user needs
-5. Create recommendations for the project
+        system_prompt = """You are a recommendation specialist. Follow these steps explicitly:
+
+STEP 1 - PLAN: Analyze the user's request and create a search strategy
+STEP 2 - SEARCH: Find relevant activities using semantic search  
+STEP 3 - REFLECT: Evaluate if activities match user needs
+STEP 4 - ADD: Create recommendations for the project
+
+Your goal: Build high-quality project recommendations.
 
 Extract key information:
 - Group size
