@@ -120,6 +120,8 @@ const Project = () => {
             setInputValue('');
         }
         setIsSending(true);
+        setAgentStates([]); // Clear previous agent states
+        setAgentState('Starting AI agents...');
 
         try {
             // Add loading message
