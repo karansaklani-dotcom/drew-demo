@@ -136,8 +136,24 @@ CONTEXT: <json>
         )
         
         if not activities:
-            state["final_response"] = "I couldn't find any activities matching your requirements. Could you provide more details?"
+            # Generate a helpful response even when no activities found
+            response_prompt = f"""The user said: "{state['user_prompt']}"
+
+No specific activities were found. Generate a friendly, helpful response that:
+1. Acknowledges their request
+2. Asks clarifying questions about what they're looking for
+3. Suggests being more specific (e.g., location, group size, type of activity)
+
+Keep it warm and conversational."""
+            
+            response = await self.llm.ainvoke([
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=response_prompt)
+            ])
+            
+            state["final_response"] = response.content
             state["next_agent"] = None
+            state["agent_history"].append("recommendation")
             return state
         
         # Reflect and create recommendations
@@ -146,9 +162,15 @@ CONTEXT: <json>
             # Reflect
             reflection = await self.tools.reflect_and_transform(activity, user_context)
             
-            if reflection["reflection"]["score"] > 0.5:
+            # Lower threshold to 0.3 to show more results
+            if reflection["reflection"]["score"] > 0.3:
                 # Create recommendation
-                reason = f"This activity matches your needs because: {', '.join(reflection['reflection']['matchedCriteria'])}"
+                matched_criteria = reflection['reflection'].get('matchedCriteria', [])
+                if matched_criteria:
+                    reason = f"Great fit! {', '.join(matched_criteria)}"
+                else:
+                    reason = "This is a popular activity that might interest you"
+                    
                 rec = await self.tools.create_recommendation(
                     project_id=state["project_id"],
                     user_id=state["user_id"],
@@ -162,9 +184,30 @@ CONTEXT: <json>
         state["recommendations"] = recommendations
         state["user_context"] = user_context
         
+        if not recommendations:
+            # Found activities but none passed reflection
+            response_prompt = f"""The user said: "{state['user_prompt']}"
+
+We found some activities but they may not be the perfect match. Generate a friendly response that:
+1. Acknowledges their request
+2. Suggests being more specific about preferences
+3. Asks what type of activities they're interested in
+
+Keep it encouraging and helpful."""
+            
+            response = await self.llm.ainvoke([
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=response_prompt)
+            ])
+            
+            state["final_response"] = response.content
+            state["next_agent"] = None
+            state["agent_history"].append("recommendation")
+            return state
+        
         # Generate response
         rec_summary = "\n".join([
-            f"- {rec['title']} (${rec.get('duration', 0)/60:.1f} hours): {rec.get('reasonToRecommend', '')}"
+            f"- {rec['title']} ({rec.get('duration', 180)//60} hours): {rec.get('reasonToRecommend', 'Great activity')}"
             for rec in recommendations
         ])
         
