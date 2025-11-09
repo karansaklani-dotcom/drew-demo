@@ -360,6 +360,81 @@ class SupervisorAgentRefactored:
         
         return workflow.compile(checkpointer=self.checkpointer)
     
+    async def stream(
+        self,
+        prompt: str,
+        user_id: str,
+        project_id: str,
+        thread_id: Optional[str] = None
+    ):
+        """Stream the supervisor agent execution in real-time"""
+        
+        # Always use fresh thread_id
+        thread_id = str(uuid.uuid4())
+        
+        logger.info(f"Streaming refactored supervisor for project {project_id}")
+        
+        # Initialize state
+        initial_state: AgentState = {
+            "messages": [HumanMessage(content=prompt)],
+            "user_prompt": prompt,
+            "user_id": user_id,
+            "project_id": project_id,
+            "thread_id": thread_id,
+            "user_context": {},
+            "agent_history": [],
+            "recommendations": [],
+            "current_recommendation_id": None,
+            "final_response": "",
+            "metadata": {},
+            "agent_states": [],
+            "next_action": None
+        }
+        
+        # Run graph with streaming
+        config = {
+            "configurable": {
+                "thread_id": thread_id,
+                "checkpoint_ns": f"project_{project_id}_{thread_id}"
+            }
+        }
+        
+        try:
+            # Stream graph execution
+            async for event in self.graph.astream(initial_state, config):
+                # Yield agent states as they happen
+                for node_name, node_state in event.items():
+                    if "agent_states" in node_state:
+                        states = node_state["agent_states"]
+                        for state in states:
+                            yield {"type": "agent_state", "state": state}
+            
+            # Get final state
+            final_state = await self.graph.ainvoke(initial_state, config)
+            
+            # Yield final response
+            yield {
+                "type": "complete",
+                "message": final_state["final_response"],
+                "recommendations": final_state["recommendations"],
+                "agentsUsed": final_state["agent_history"],
+                "threadId": thread_id,
+                "projectId": project_id,
+                "projectName": "Your Activity Project",
+                "projectDescription": prompt[:100],
+                "metadata": {
+                    "userContext": final_state.get("user_context", {}),
+                    "recommendationCount": len(final_state["recommendations"])
+                }
+            }
+        
+        except Exception as e:
+            logger.error(f"Error in supervisor stream: {e}", exc_info=True)
+            yield {
+                "type": "error",
+                "error": str(e)
+            }
+    
     async def run(
         self,
         prompt: str,
@@ -367,7 +442,7 @@ class SupervisorAgentRefactored:
         project_id: str,
         thread_id: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Run the supervisor agent"""
+        """Run the supervisor agent (non-streaming)"""
         
         # Always use fresh thread_id
         thread_id = str(uuid.uuid4())
