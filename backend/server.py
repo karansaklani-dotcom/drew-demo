@@ -600,13 +600,92 @@ async def complete_onboarding(
     }
 
 # =============================================================================
+# AI AGENT ENDPOINTS
+# =============================================================================
+
+@api_router.post("/agent/recommend")
+async def get_recommendations(
+    request: AgentPromptRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get AI-powered activity recommendations based on user prompt
+    Requires authentication
+    """
+    if not recommendation_agent:
+        raise HTTPException(
+            status_code=503,
+            detail="AI recommendation service is not available. Please configure OPENAI_API_KEY."
+        )
+    
+    try:
+        user_id = current_user['user_id']
+        
+        # Run the agent
+        response = await recommendation_agent.run(
+            prompt=request.prompt,
+            user_id=user_id,
+            session_id=request.sessionId,
+            context=request.context
+        )
+        
+        return response
+    
+    except Exception as e:
+        logger.error(f"Error in recommendation agent: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error processing recommendation request: {str(e)}"
+        )
+
+@api_router.post("/agent/embeddings/generate")
+async def generate_embeddings(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Generate embeddings for all activities (admin function)
+    Requires authentication
+    """
+    if not semantic_search_service:
+        raise HTTPException(
+            status_code=503,
+            detail="Semantic search service is not available"
+        )
+    
+    try:
+        # Ensure indexes
+        await semantic_search_service.ensure_indexes()
+        
+        # Generate embeddings
+        count = await semantic_search_service.batch_generate_embeddings()
+        
+        return {
+            "success": True,
+            "message": f"Generated embeddings for {count} activities",
+            "count": count
+        }
+    
+    except Exception as e:
+        logger.error(f"Error generating embeddings: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error generating embeddings: {str(e)}"
+        )
+
+# =============================================================================
 # HEALTH CHECK & ROOT
 # =============================================================================
 
 @api_router.get("/")
 async def api_root():
     """API health check"""
-    return {"message": "Drew API is running", "version": "1.0.0", "status": "healthy"}
+    ai_status = "enabled" if recommendation_agent else "disabled"
+    return {
+        "message": "Drew API is running",
+        "version": "1.0.0",
+        "status": "healthy",
+        "ai_features": ai_status
+    }
 
 @app.get("/")
 async def root():
