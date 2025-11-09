@@ -99,14 +99,16 @@ async def test_agent_via_api():
         token = auth_data.get('token')
         user_id = auth_data.get('user', {}).get('_id')
         print(f"   ✅ Logged in successfully")
-    else:
-        # Register new user
-        print(f"   Creating new user...")
+    elif login_response.status_code == 401:
+        # User exists but wrong password, try registering with different email
+        import random
+        test_email = f"agent_test_{random.randint(1000,9999)}@example.com"
+        print(f"   Creating new user: {test_email}...")
         register_response = requests.post(
             f"{backend_url}/api/user/register",
             json={
-                "email": "agent_test@example.com",
-                "username": "agent_tester",
+                "email": test_email,
+                "username": f"agent_tester_{random.randint(1000,9999)}",
                 "password": "test123",
                 "firstName": "Agent",
                 "lastName": "Tester"
@@ -121,6 +123,9 @@ async def test_agent_via_api():
         token = auth_data.get('token')
         user_id = auth_data.get('user', {}).get('_id')
         print(f"   ✅ Registered successfully")
+    else:
+        print(f"   ❌ Login failed: {login_response.text}")
+        return
     
     print(f"   User ID: {user_id}")
     print(f"   Token: {token[:20]}...")
