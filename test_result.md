@@ -160,15 +160,18 @@
 
   - task: "Activity/Event endpoints with filters"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented GET /activity with location/category/search filters, GET /activity/{id} with expand parameter, POST /activity, PUT /activity/{id}"
+      - working: true
+        agent: "testing"
+        comment: "✅ All activity endpoints working: GET /api/activity (200) with 6 seeded activities found, location/category/search filters working, GET /api/activity/{id} (200) with expand=offerings parameter working, POST /api/activity (201), PUT /api/activity/{id} (200). Proper pagination format."
 
   - task: "Occasion endpoints"
     implemented: true
