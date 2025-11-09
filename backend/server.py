@@ -609,9 +609,9 @@ async def get_events_compat(
     return {"events": result["rows"]}
 
 @api_router.get("/events/{event_id}")
-async def get_event_compat(event_id: str):
+async def get_event_compat(event_id: str, expand: Optional[str] = Query(None)):
     """Legacy endpoint - Get event by ID (redirects to activity)"""
-    return await get_activity(event_id)
+    return await get_activity(event_id, expand)
 
 # Include the router in the main app
 app.include_router(api_router)
