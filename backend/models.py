@@ -68,12 +68,49 @@ class Organization(BaseModel):
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
 
+# User Update Model
+class UserUpdate(BaseModel):
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    role: Optional[str] = None
+    organizationId: Optional[str] = None
+
+# Organization Update Model
+class OrganizationUpdate(BaseModel):
+    name: Optional[str] = None
+    industry: Optional[str] = None
+    companySize: Optional[str] = None
+    website: Optional[str] = None
+
 # Onboarding Model
 class OnboardingData(BaseModel):
     firstName: str
     lastName: str
     role: str
     organization: Optional[OrganizationCreate] = None
+
+# Activity/Event Models (renamed from Event to Activity for API consistency)
+class Offering(BaseModel):
+    id: Optional[str] = Field(alias="_id", default=None)
+    name: str
+    description: Optional[str] = None
+
+    class Config:
+        populate_by_name = True
+        json_encoders = {ObjectId: str}
+
+class Occasion(BaseModel):
+    id: Optional[str] = Field(alias="_id", default=None)
+    name: str
+    description: Optional[str] = None
+
+    class Config:
+        populate_by_name = True
+        json_encoders = {ObjectId: str}
+
+class PreRequisite(BaseModel):
+    title: str
+    icon: str
 
 # Event Models
 class HostInfo(BaseModel):
