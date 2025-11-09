@@ -183,12 +183,19 @@ class AgentTools:
         
         # Check budget
         if user_context.get('budget'):
-            if activity.get('price', 0) <= user_context['budget']:
-                reflection["matchedCriteria"].append("Within budget")
-                reflection["score"] += 0.1
-            else:
-                reflection["concerns"].append(f"Price ${activity.get('price')} exceeds budget")
-                reflection["score"] -= 0.2
+            try:
+                budget = float(user_context['budget'])
+                price = float(activity.get('price', 0))
+                
+                if price <= budget:
+                    reflection["matchedCriteria"].append("Within budget")
+                    reflection["score"] += 0.1
+                else:
+                    reflection["concerns"].append(f"Price ${price} exceeds budget")
+                    reflection["score"] -= 0.2
+            except (ValueError, TypeError):
+                # Skip if conversion fails
+                pass
         
         reflection["score"] = max(0, min(1, reflection["score"]))
         
