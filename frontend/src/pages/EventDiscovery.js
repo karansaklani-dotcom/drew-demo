@@ -272,7 +272,7 @@ const EventDiscovery = () => {
                                 </Button>
                                 <Button
                                     size="icon"
-                                    className="rounded-full h-12 w-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                                    className="rounded-full h-12 w-12 bg-black hover:bg-gray-800"
                                     disabled={isCreatingProject || !searchQuery.trim()}
                                     onClick={async () => {
                                         if (searchQuery.trim() && !isCreatingProject) {
