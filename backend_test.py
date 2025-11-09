@@ -117,7 +117,7 @@ class DrewAPITester:
         
         # Test successful login
         login_data = {
-            "email": f"sarah.johnson.{timestamp}@example.com",
+            "email": self.test_email,
             "password": "SecurePass123!"
         }
         
