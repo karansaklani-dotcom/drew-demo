@@ -526,6 +526,7 @@ class SupervisorAgent:
                 "message": final_state["final_response"],
                 "recommendations": final_state["recommendations"],
                 "agentsUsed": final_state["agent_history"],
+                "agentStates": final_state.get("agent_states", []),
                 "threadId": thread_id,
                 "projectId": project_id,
                 "metadata": {
