@@ -124,15 +124,15 @@ const EventDetail = () => {
             {/* Image Gallery */}
             <div className="max-w-7xl mx-auto px-4 py-6">
                 {event.images.length === 1 ? (
-                    <div className="rounded-2xl overflow-hidden h-[500px]">
+                    <div className="rounded-2xl overflow-hidden max-h-[500px]">
                         <img
                             src={event.images[0]}
                             alt={event.title}
-                            className="w-full h-full object-cover"
+                            className="w-full max-w-full h-auto max-h-[500px] object-contain"
                         />
                     </div>
                 ) : event.images.length === 2 ? (
-                    <div className="grid grid-cols-2 gap-4 h-[500px]">
+                    <div className="grid grid-cols-2 gap-4 max-h-[500px]">
                         {event.images.map((img, idx) => (
                             <div
                                 key={idx}
@@ -141,18 +141,18 @@ const EventDetail = () => {
                                 <img
                                     src={img}
                                     alt={`${event.title} ${idx + 1}`}
-                                    className="w-full h-full object-cover"
+                                    className="w-full max-w-full h-auto max-h-[500px] object-cover"
                                 />
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 gap-4 h-[500px]">
+                    <div className="grid grid-cols-2 gap-4 max-h-[500px]">
                         <div className="rounded-2xl overflow-hidden col-span-1 row-span-2">
                             <img
                                 src={event.images[0]}
                                 alt={event.title}
-                                className="w-full h-full object-cover"
+                                className="w-full max-w-full h-full max-h-[500px] object-cover"
                             />
                         </div>
                         <div className="grid grid-rows-2 gap-4">
@@ -164,7 +164,7 @@ const EventDetail = () => {
                                     <img
                                         src={img}
                                         alt={`${event.title} ${idx + 2}`}
-                                        className="w-full h-full object-cover"
+                                        className="w-full max-w-full h-auto max-h-[240px] object-cover"
                                     />
                                 </div>
                             ))}
