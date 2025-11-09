@@ -155,13 +155,14 @@ CONTEXT: <json>
         state["metadata"]["suggested_project_name"] = project_name
         state["metadata"]["suggested_project_description"] = project_description
         
-        # Search activities
+        # STEP 2: SEARCH
         logger.info(f"Searching with query: {search_query}, filters: {filters}")
         
         state["agent_states"].append({
             "agent": "recommendation",
             "status": "searching",
-            "message": f"Searching activities with: {search_query}"
+            "step": 2,
+            "message": f"🔍 Step 2/4: Searching activities - '{search_query}'"
         })
         
         activities = await self.tools.search_activities(
@@ -169,6 +170,13 @@ CONTEXT: <json>
             filters=filters if filters else None,
             limit=5
         )
+        
+        state["agent_states"].append({
+            "agent": "recommendation",
+            "status": "searched",
+            "step": 2,
+            "message": f"✓ Found {len(activities)} activities to analyze"
+        })
         
         if not activities:
             # Generate a helpful response even when no activities found
