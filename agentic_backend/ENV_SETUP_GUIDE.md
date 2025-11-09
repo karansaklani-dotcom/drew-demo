@@ -68,7 +68,7 @@ MAIN_BACKEND_API_PREFIX=/api
 
 **Important**: This is for **internal communication** between services on the same server.
 
-**Your main backend URL**: `https://drew-auth-service.preview.emergentagent.com`
+**Your main backend URL**: `https://drew-events-agent.preview.emergentagent.com`
 - This is the **external** URL that frontend uses
 - The agentic backend uses `localhost:8001` for **internal** communication
 - Both are correct for their respective use cases!
@@ -88,7 +88,7 @@ AGENTIC_SERVER_PORT=8002
 
 **Access URLs**:
 - **Internal**: `http://localhost:8002`
-- **External**: `https://drew-auth-service.preview.emergentagent.com:8002` (if port is exposed)
+- **External**: `https://drew-events-agent.preview.emergentagent.com:8002` (if port is exposed)
 - **API Docs**: `http://localhost:8002/docs`
 
 ---

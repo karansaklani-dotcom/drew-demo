@@ -10,7 +10,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Backend URL from frontend .env
-BASE_URL = "https://drew-auth-service.preview.emergentagent.com/api"
+BASE_URL = "https://drew-events-agent.preview.emergentagent.com/api"
 
 class DrewAPITester:
     def __init__(self):
