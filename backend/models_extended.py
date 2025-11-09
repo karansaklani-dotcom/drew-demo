@@ -318,6 +318,85 @@ class ActivityUpdate(BaseModel):
     reviewCount: Optional[int] = None
 
 # ============================================================================
+# PROJECT MODELS
+# ============================================================================
+
+class ProjectCreate(BaseModel):
+    """Create project request"""
+    name: str
+    description: str
+    occasionIds: List[str] = []  # List of occasion IDs
+
+class Project(BaseEntityModel):
+    """Project - tracks user's event planning projects"""
+    name: str
+    description: str
+    userId: str
+    threadId: str  # LangGraph thread ID for agent conversations
+    occasionIds: List[str] = []
+    occasions: List[Occasion] = []  # Populated on query
+    recommendationIds: List[str] = []
+
+class ProjectUpdate(BaseModel):
+    """Update project request"""
+    name: Optional[str] = None
+    description: Optional[str] = None
+    occasionIds: Optional[List[str]] = None
+
+# ============================================================================
+# RECOMMENDATION MODELS
+# ============================================================================
+
+class RecommendationCreate(BaseModel):
+    """Create recommendation request"""
+    activityId: str
+    projectId: str
+    title: str
+    shortDescription: str
+    longDescription: Optional[str] = None
+    thumbnailUrl: Optional[str] = None
+    itinerary: Optional[List[ItineraryItemDetailed]] = None
+    preRequisiteIds: List[str] = []
+    offeringIds: List[str] = []
+    reasonToRecommend: Optional[str] = None
+    duration: Optional[int] = None
+
+class Recommendation(BaseEntityModel):
+    """Recommendation - AI-generated activity recommendations for projects"""
+    activityId: str
+    activity: Optional[Activity] = None  # Populated on query
+    projectId: str
+    project: Optional[Project] = None  # Populated on query
+    userId: str
+    
+    # Denormalized activity data for quick access
+    title: str
+    shortDescription: str
+    longDescription: Optional[str] = None
+    thumbnailUrl: Optional[str] = None
+    itinerary: Optional[List[ItineraryItemDetailed]] = None
+    
+    # Relations
+    preRequisiteIds: List[str] = []
+    preRequisites: List[PreRequisite] = []  # Populated on query
+    offeringIds: List[str] = []
+    offerings: List[Offering] = []  # Populated on query
+    
+    # AI metadata
+    reasonToRecommend: Optional[str] = None
+    duration: Optional[int] = None
+    score: float = 0.0
+
+class RecommendationUpdate(BaseModel):
+    """Update recommendation request"""
+    title: Optional[str] = None
+    shortDescription: Optional[str] = None
+    longDescription: Optional[str] = None
+    thumbnailUrl: Optional[str] = None
+    reasonToRecommend: Optional[str] = None
+    duration: Optional[int] = None
+
+# ============================================================================
 # AGENT REQUEST/RESPONSE MODELS
 # ============================================================================
 
@@ -326,6 +405,7 @@ class AgentPromptRequest(BaseModel):
     prompt: str
     userId: Optional[str] = None
     sessionId: Optional[str] = None
+    projectId: Optional[str] = None  # Optional project context
     context: Optional[Dict[str, Any]] = {}
 
 class AgentRecommendation(BaseModel):
