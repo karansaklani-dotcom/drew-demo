@@ -92,4 +92,25 @@ function api(endpoint, options = {}) {
     return apiClient(config).then((response) => response.data);
 }
 
-export { api, apiClient };
+/**
+ * Helper function to clear auth token
+ */
+function clearAuthToken() {
+    localStorage.removeItem(TOKEN_KEY);
+}
+
+/**
+ * Helper function to set auth token manually (for testing)
+ */
+function setAuthToken(token) {
+    localStorage.setItem(TOKEN_KEY, token);
+}
+
+/**
+ * Helper function to get auth token
+ */
+function getAuthToken() {
+    return localStorage.getItem(TOKEN_KEY);
+}
+
+export { api, apiClient, clearAuthToken, setAuthToken, getAuthToken, TOKEN_KEY };
