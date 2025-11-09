@@ -558,12 +558,13 @@ class SupervisorAgent:
     ) -> Dict[str, Any]:
         """Run the supervisor agent with thread context management"""
         
-        if not thread_id:
-            thread_id = str(uuid.uuid4())
+        # Always generate a new thread_id for each invocation to prevent state accumulation
+        # This ensures fresh execution without duplicate agent runs
+        thread_id = str(uuid.uuid4())
         
         logger.info(f"Running supervisor for project {project_id} with thread {thread_id}")
         
-        # Initialize state
+        # Initialize state - lists are empty to prevent accumulation
         initial_state: SupervisorState = {
             "messages": [HumanMessage(content=prompt)],
             "user_prompt": prompt,
@@ -580,11 +581,11 @@ class SupervisorAgent:
             "agent_states": []
         }
         
-        # Run the graph with checkpointing for conversation history
+        # Run the graph with fresh checkpointing
         config = {
             "configurable": {
                 "thread_id": thread_id,
-                "checkpoint_ns": f"project_{project_id}"
+                "checkpoint_ns": f"project_{project_id}_{thread_id}"  # Unique namespace
             }
         }
         
@@ -592,6 +593,8 @@ class SupervisorAgent:
             logger.info(f"Invoking graph with thread_id: {thread_id}")
             final_state = await self.graph.ainvoke(initial_state, config)
             logger.info(f"Graph execution complete. Generated {len(final_state.get('recommendations', []))} recommendations")
+            logger.info(f"Agent states count: {len(final_state.get('agent_states', []))}")
+            logger.info(f"Agents used: {final_state.get('agent_history', [])}")
             
             return {
                 "message": final_state["final_response"],
