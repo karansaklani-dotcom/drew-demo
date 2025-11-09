@@ -12,12 +12,7 @@ logger = logging.getLogger(__name__)
 # Tool input schemas
 class SearchActivitiesInput(BaseModel):
     """Input for searching activities"""
-    query: str = Field(description="Natural language search query describing desired activities")
-    location: Optional[str] = Field(None, description="Location filter (city name)")
-    min_participants: Optional[int] = Field(None, description="Minimum number of participants")
-    max_participants: Optional[int] = Field(None, description="Maximum number of participants")
-    price_max: Optional[float] = Field(None, description="Maximum price per person")
-    category: Optional[str] = Field(None, description="Activity category filter")
+    query: str = Field(description="Natural language search query describing desired activities including location, group size, preferences, and any other requirements")
     limit: int = Field(5, description="Maximum number of results to return")
 
 class CreateRecommendationInput(BaseModel):
