@@ -77,11 +77,9 @@ class DrewAPITester:
         print("\n=== Testing User Registration ===")
         
         # Test successful registration with unique email
-        import time
-        timestamp = int(time.time())
         user_data = {
-            "username": f"sarah_johnson_{timestamp}",
-            "email": f"sarah.johnson.{timestamp}@example.com",
+            "username": self.test_username,
+            "email": self.test_email,
             "password": "SecurePass123!"
         }
         
