@@ -160,13 +160,20 @@ class AgentTools:
         
         # Check participants
         if user_context.get('groupSize'):
-            group_size = user_context['groupSize']
-            if activity.get('minParticipants', 0) <= group_size <= activity.get('maxParticipants', 999):
-                reflection["matchedCriteria"].append(f"Suitable for {group_size} participants")
-                reflection["score"] += 0.1
-            else:
-                reflection["concerns"].append(f"Activity designed for {activity.get('minParticipants')}-{activity.get('maxParticipants')} people")
-                reflection["score"] -= 0.2
+            try:
+                group_size = int(user_context['groupSize'])
+                min_participants = int(activity.get('minParticipants', 0))
+                max_participants = int(activity.get('maxParticipants', 999))
+                
+                if min_participants <= group_size <= max_participants:
+                    reflection["matchedCriteria"].append(f"Suitable for {group_size} participants")
+                    reflection["score"] += 0.1
+                else:
+                    reflection["concerns"].append(f"Activity designed for {min_participants}-{max_participants} people")
+                    reflection["score"] -= 0.2
+            except (ValueError, TypeError):
+                # Skip if conversion fails
+                pass
         
         # Check location
         if user_context.get('preferredLocation'):
