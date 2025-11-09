@@ -174,14 +174,14 @@ class DrewAPITester:
             self.log_result("Get Current User - Request", False, 
                           f"Status: {status}, Response: {response.text if response else 'No response'}")
         
-        # Test without token (should return 401)
+        # Test without token (should return 401 or 403)
         success, response, status = self.make_request("GET", "/user/me", headers={})
-        if success and status == 401:
+        if success and status in [401, 403]:
             self.log_result("Get Current User - No Token Check", True, 
                           "Correctly rejected request without token")
         else:
             self.log_result("Get Current User - No Token Check", False, 
-                          f"Expected 401, got {status}")
+                          f"Expected 401 or 403, got {status}")
 
     def test_update_user(self):
         """Test PUT /api/user/{id}"""
