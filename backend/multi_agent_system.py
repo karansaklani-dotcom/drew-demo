@@ -497,8 +497,13 @@ class OfferingsAgent:
             )
             logger.info(f"Updated offerings: added {len(reflection['needed'])} items")
         
-        state["agent_history"].append("offerings")
-        state["next_agent"] = None  # End of agent chain
+        # Append to agent history - check for duplicates
+        agent_history = state.get("agent_history", [])
+        if "offerings" not in agent_history:
+            agent_history.append("offerings")
+            state["agent_history"] = agent_history
+        
+        state["next_agent"] = None  # Always end after offerings
         
         return state
 
