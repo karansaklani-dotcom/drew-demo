@@ -45,6 +45,9 @@ class SupervisorState(TypedDict):
     
     # Metadata
     metadata: Dict[str, Any]
+    
+    # Agent states for streaming
+    agent_states: Annotated[List, operator.add]
 
 # ============================================================================
 # RECOMMENDATION AGENT
