@@ -65,12 +65,15 @@ class RecommendationAgent:
         logger.info("🎯 Running Recommendation Agent")
         
         # STEP 1: PLAN
-        state["agent_states"].append({
+        # Manually append to agent_states list
+        agent_states = state.get("agent_states", [])
+        agent_states.append({
             "agent": "recommendation",
             "status": "planning",
             "step": 1,
             "message": "📋 Step 1/4: Planning search strategy..."
         })
+        state["agent_states"] = agent_states
         
         system_prompt = """You are a recommendation specialist. Follow these steps explicitly:
 
