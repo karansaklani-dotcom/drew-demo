@@ -271,6 +271,48 @@
       - working: "NA"
         agent: "main"
         comment: "Updated seed script to populate both events and activities collections with 6 mock events"
+  
+  - task: "AI Agent System - Semantic Search"
+    implemented: true
+    working: true
+    file: "backend/semantic_search.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "AI agent cannot find activities via semantic search (returns 0 results). 'unhashable type: dict' error during agent execution."
+      - working: "NA"
+        agent: "main"
+        comment: "ROOT CAUSE IDENTIFIED: 1) Database had 0 activities (not seeded), 2) No embeddings generated, 3) MongoDB aggregation pipeline had syntax error accessing query_embedding array. FIXES: 1) Ran seed_comprehensive.py to add 12 diverse activities, 2) Created and ran generate_embeddings.py to create embeddings for all activities (100% coverage), 3) Fixed semantic_search.py line 142-175 to use proper $zip operator for dot product calculation. Tested with 5 queries - all working perfectly with proper similarity scores."
+      - working: true
+        agent: "main"
+        comment: "Semantic search now working. Test results: 'team building SF' returns Improv/Cooking/Escape Room (0.58-0.53 similarity), 'volunteer' returns Garden/Beach activities (0.45-0.42), 'wellness yoga' returns Yoga/Mindfulness (0.57-0.40), 'cooking class' returns Culinary (0.66), 'escape room' returns exact match (0.64). Ready for agent integration testing."
+  
+  - task: "AI Agent System - Multi-Agent Orchestration"
+    implemented: true
+    working: "NA"
+    file: "backend/multi_agent_system.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Supervisor agent coordinates RecommendationAgent, ItineraryBuilderAgent, and OfferingsAgent using LangGraph. Uses streaming agent states for frontend display. Needs testing now that semantic search is fixed."
+  
+  - task: "AI Agent Chat Endpoint"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "POST /api/project/{project_id}/chat endpoint for AI agent interaction. Streams agent states and creates/updates projects and recommendations. Needs testing with fixed semantic search."
 
 ## frontend:
   - task: "API client JWT authentication"
