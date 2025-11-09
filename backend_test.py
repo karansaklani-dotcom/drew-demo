@@ -648,6 +648,178 @@ class DrewAPITester:
             self.log_result("API Health Check - Request", False, 
                           f"Status: {status}")
 
+    def test_ai_agent_chat_endpoint(self):
+        """Test AI Agent Chat endpoint POST /api/project/{project_id}/chat"""
+        print("\n=== Testing AI Agent Chat Endpoint ===")
+        
+        if not self.auth_token or not self.test_user_id:
+            self.log_result("AI Agent Chat - Prerequisites", False, "No auth token or user ID available")
+            return
+        
+        # Step 1: Create a project first
+        project_data = {
+            "name": "Team Building Event Planning",
+            "description": "Planning team building activities for our company",
+            "occasionIds": []
+        }
+        
+        success, response, status = self.make_request("POST", "/project", project_data)
+        
+        if not success or status != 201:
+            self.log_result("AI Agent Chat - Project Creation", False, 
+                          f"Failed to create project. Status: {status}")
+            return
+        
+        try:
+            project_response = response.json()
+            project_id = project_response.get("id")
+            if not project_id:
+                self.log_result("AI Agent Chat - Project ID", False, "No project ID in response")
+                return
+            
+            self.log_result("AI Agent Chat - Project Creation", True, f"Project created: {project_id}")
+        except Exception as e:
+            self.log_result("AI Agent Chat - Project JSON Parse", False, str(e))
+            return
+        
+        # Step 2: Test the AI Agent Chat endpoint
+        chat_request = {
+            "prompt": "I need team building activities in San Francisco for 15 people",
+            "userId": self.test_user_id,
+            "threadId": None
+        }
+        
+        success, response, status = self.make_request("POST", f"/project/{project_id}/chat", chat_request)
+        
+        if success and status == 200:
+            try:
+                data = response.json()
+                
+                # Check required response fields
+                required_fields = ["message", "recommendations", "agentsUsed", "threadId"]
+                missing_fields = []
+                
+                for field in required_fields:
+                    if field not in data:
+                        missing_fields.append(field)
+                
+                if missing_fields:
+                    self.log_result("AI Agent Chat - Response Format", False, 
+                                  f"Missing required fields: {missing_fields}")
+                else:
+                    # Verify response content
+                    message = data.get("message", "")
+                    recommendations = data.get("recommendations", [])
+                    agents_used = data.get("agentsUsed", [])
+                    thread_id = data.get("threadId")
+                    
+                    # Check if we got meaningful responses
+                    if len(message) > 0:
+                        self.log_result("AI Agent Chat - Message Generation", True, 
+                                      f"AI generated message ({len(message)} chars)")
+                    else:
+                        self.log_result("AI Agent Chat - Message Generation", False, 
+                                      "Empty message returned")
+                    
+                    if len(recommendations) > 0:
+                        # Check recommendation structure
+                        first_rec = recommendations[0]
+                        rec_fields = ["title", "shortDescription", "reasonToRecommend"]
+                        rec_missing = [f for f in rec_fields if f not in first_rec]
+                        
+                        if rec_missing:
+                            self.log_result("AI Agent Chat - Recommendation Structure", False, 
+                                          f"Missing recommendation fields: {rec_missing}")
+                        else:
+                            self.log_result("AI Agent Chat - Recommendations", True, 
+                                          f"Generated {len(recommendations)} recommendations with proper structure")
+                    else:
+                        self.log_result("AI Agent Chat - Recommendations", False, 
+                                      "No recommendations returned")
+                    
+                    if len(agents_used) > 0:
+                        self.log_result("AI Agent Chat - Agent Execution", True, 
+                                      f"Agents executed: {', '.join(agents_used)}")
+                    else:
+                        self.log_result("AI Agent Chat - Agent Execution", False, 
+                                      "No agents were executed")
+                    
+                    if thread_id:
+                        self.log_result("AI Agent Chat - Thread ID", True, 
+                                      f"Thread ID generated: {thread_id}")
+                    else:
+                        self.log_result("AI Agent Chat - Thread ID", False, 
+                                      "No thread ID returned")
+                    
+                    # Check for project name and description updates
+                    if data.get("projectName") and data.get("projectDescription"):
+                        self.log_result("AI Agent Chat - Project Updates", True, 
+                                      f"Project name: {data.get('projectName')}")
+                    else:
+                        self.log_result("AI Agent Chat - Project Updates", False, 
+                                      "No project name/description generated")
+                    
+                    # Overall success check
+                    if (len(message) > 0 and len(recommendations) > 0 and 
+                        len(agents_used) > 0 and thread_id):
+                        self.log_result("AI Agent Chat - Overall Success", True, 
+                                      "AI Agent Chat endpoint working correctly")
+                    else:
+                        self.log_result("AI Agent Chat - Overall Success", False, 
+                                      "Some AI agent functionality not working properly")
+                        
+            except Exception as e:
+                self.log_result("AI Agent Chat - JSON Parse", False, str(e))
+        elif success and status == 503:
+            self.log_result("AI Agent Chat - Service Availability", False, 
+                          "AI service not available (OPENAI_API_KEY not configured)")
+        else:
+            self.log_result("AI Agent Chat - Request", False, 
+                          f"Status: {status}, Response: {response.text if response else 'No response'}")
+        
+        # Step 3: Test with different prompt to verify semantic search
+        chat_request_2 = {
+            "prompt": "I want wellness and yoga activities for a corporate retreat",
+            "userId": self.test_user_id,
+            "threadId": None
+        }
+        
+        success, response, status = self.make_request("POST", f"/project/{project_id}/chat", chat_request_2)
+        
+        if success and status == 200:
+            try:
+                data = response.json()
+                recommendations = data.get("recommendations", [])
+                
+                if len(recommendations) > 0:
+                    # Check if recommendations are relevant to wellness/yoga
+                    relevant_found = False
+                    for rec in recommendations:
+                        title = rec.get("title", "").lower()
+                        description = rec.get("shortDescription", "").lower()
+                        reason = rec.get("reasonToRecommend", "").lower()
+                        
+                        if any(keyword in title + description + reason 
+                               for keyword in ["wellness", "yoga", "mindfulness", "meditation"]):
+                            relevant_found = True
+                            break
+                    
+                    if relevant_found:
+                        self.log_result("AI Agent Chat - Semantic Search Relevance", True, 
+                                      "Semantic search finding relevant activities")
+                    else:
+                        self.log_result("AI Agent Chat - Semantic Search Relevance", False, 
+                                      "Recommendations not relevant to wellness/yoga query")
+                else:
+                    self.log_result("AI Agent Chat - Second Query", False, 
+                                  "No recommendations for wellness query")
+                    
+            except Exception as e:
+                self.log_result("AI Agent Chat - Second Query JSON", False, str(e))
+        else:
+            self.log_result("AI Agent Chat - Second Query Request", False, 
+                          f"Status: {status}")
+
     def run_all_tests(self):
         """Run all tests in sequence"""
         print(f"🚀 Starting Drew Events Backend API Tests")
