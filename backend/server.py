@@ -957,6 +957,16 @@ async def project_chat(
             thread_id=project.get('threadId')
         )
         
+        # Update project with AI-generated name and description
+        if response.get('projectName') and response.get('projectDescription'):
+            await db.projects.update_one(
+                {"_id": ObjectId(project_id)},
+                {"$set": {
+                    "name": response['projectName'],
+                    "description": response['projectDescription']
+                }}
+            )
+        
         return response
     
     except HTTPException:
