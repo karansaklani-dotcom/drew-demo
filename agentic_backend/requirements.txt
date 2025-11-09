@@ -1,7 +1,7 @@
 # LangGraph and related dependencies
 langgraph>=0.2.0
-langgraph-checkpoint>=1.0.0
-langgraph-checkpoint-mongodb>=1.0.0
+langgraph-checkpoint>=2.0.0
+langgraph-checkpoint-mongodb>=0.2.0
 
 # LLM Integration
 emergentintegrations
