@@ -369,6 +369,12 @@ class OfferingsAgent:
         """Execute offerings agent"""
         logger.info("🎁 Running Offerings Agent")
         
+        state["agent_states"].append({
+            "agent": "offerings",
+            "status": "started",
+            "message": "Adding relevant offerings..."
+        })
+        
         if not state.get("current_recommendation_id"):
             logger.warning("No recommendation to manage offerings for")
             state["next_agent"] = None
