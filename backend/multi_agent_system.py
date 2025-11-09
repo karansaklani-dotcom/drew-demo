@@ -64,6 +64,13 @@ class RecommendationAgent:
         """Execute recommendation agent"""
         logger.info("🎯 Running Recommendation Agent")
         
+        # Add agent state
+        state["agent_states"].append({
+            "agent": "recommendation",
+            "status": "started",
+            "message": "Searching for activities..."
+        })
+        
         system_prompt = """You are a recommendation specialist. Your job is to:
 1. Understand user requirements from their prompt and conversation history
 2. Search for relevant activities using semantic search
