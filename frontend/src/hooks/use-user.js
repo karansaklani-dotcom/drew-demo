@@ -10,12 +10,13 @@ import { useQueryClient } from "@tanstack/react-query";
 /**
  * Hook to get current user (me)
  */
-export function useUserMe() {
+export function useUserMe(options = {}) {
     return useApiQuery({
         queryKey: endpoints.user.me.getKeys(),
         queryFn: () => endpoints.user.me.query(),
         retry: false,
         staleTime: 5 * 60 * 1000, // 5 minutes
+        ...options, // Allow overriding options like 'enabled'
     });
 }
 
