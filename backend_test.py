@@ -45,14 +45,14 @@ class DrewAPITester:
             self.results["errors"].append(f"{test_name}: {details}")
     
     def make_request(self, method: str, endpoint: str, data: Dict = None, 
-                    headers: Dict = None, params: Dict = None) -> tuple:
+                    headers: Dict = None, params: Dict = None, use_auth: bool = True) -> tuple:
         """Make HTTP request and return (success, response, status_code)"""
         url = f"{self.base_url}{endpoint}"
         
-        # Add auth header if token exists
-        if self.auth_token and headers is None:
+        # Add auth header if token exists and use_auth is True
+        if self.auth_token and headers is None and use_auth:
             headers = {}
-        if self.auth_token:
+        if self.auth_token and use_auth and headers is not None:
             headers = headers or {}
             headers["Authorization"] = f"Bearer {self.auth_token}"
         
