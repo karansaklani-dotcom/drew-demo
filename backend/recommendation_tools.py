@@ -131,16 +131,19 @@ async def create_recommendation_tool(
     if not activity:
         return f"Error: Activity with ID {activity_id} not found"
     
-    # Create recommendation
+    # Create recommendation with customization
     rec = await _agent_tools_instance.create_recommendation(
         project_id=project_id,
         user_id=user_id,
         activity=activity,
         reason_to_recommend=reason,
-        score=score
+        score=score,
+        customized_title=customized_title,
+        customized_description=customized_description
     )
     
-    return f"✓ Created recommendation: {rec['title']} (ID: {rec.get('id', rec.get('_id'))})"
+    title_used = customized_title if customized_title else rec['title']
+    return f"✓ Created recommendation: {title_used} (ID: {rec.get('id', rec.get('_id'))})"
 
 @tool("reflect_on_activity", args_schema=ReflectOnActivityInput, return_direct=False)
 async def reflect_on_activity_tool(
