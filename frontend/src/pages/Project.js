@@ -276,13 +276,19 @@ const Project = () => {
     }
 
     const getAgentStateDisplay = () => {
-        if (!agentState) return null;
+        if (agentStates.length === 0) return null;
         
-        // agentState now contains the actual message from backend
+        // Show the last 3 agent states
+        const recentStates = agentStates.slice(-3);
+        
         return (
-            <div className="flex items-center gap-2 text-sm">
-                <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
-                <span className="text-gray-700 font-medium">{agentState}</span>
+            <div className="space-y-2">
+                {recentStates.map((state, index) => (
+                    <div key={index} className="flex items-center gap-2 text-sm">
+                        <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
+                        <span className="text-gray-700 font-medium">{state.message}</span>
+                    </div>
+                ))}
             </div>
         );
     };
