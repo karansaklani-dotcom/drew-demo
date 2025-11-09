@@ -121,7 +121,7 @@ const Project = () => {
         setIsSending(true);
 
         try {
-            // Add loading message with agent states
+            // Add loading message
             const loadingMessage = {
                 type: 'assistant',
                 content: 'Starting AI agents...',
@@ -130,10 +130,84 @@ const Project = () => {
             };
             setMessages((prev) => [...prev, loadingMessage]);
 
-            const response = await api(`project/${projectId}/chat`, {
-                method: 'POST',
-                data: { prompt: content },
-            });
+            // Use streaming endpoint
+            const response = await fetch(
+                `${process.env.REACT_APP_DREW_AI_BACKEND_URL || 'http://localhost:3000'}/project/${projectId}/chat/stream`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                    },
+                    body: JSON.stringify({ prompt: content })
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Streaming failed');
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            let accumulatedMessage = '';
+            let recommendationCount = 0;
+
+            // Remove loading message
+            setMessages((prev) => prev.filter((msg) => !msg.isLoading));
+            setIsTyping(true);
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = JSON.parse(line.slice(6));
+                        
+                        if (data.type === 'agent_state') {
+                            // Update agent state display
+                            setAgentState(data.state.message);
+                        } else if (data.type === 'project_update') {
+                            // Update project name
+                            setProject(prev => ({
+                                ...prev,
+                                name: data.name,
+                                description: data.description
+                            }));
+                        } else if (data.type === 'message_chunk') {
+                            // Accumulate message chunks
+                            accumulatedMessage += data.chunk;
+                            setTypingText(accumulatedMessage);
+                        } else if (data.type === 'complete') {
+                            // Stream complete
+                            recommendationCount = data.recommendationCount;
+                            setIsTyping(false);
+                            setAgentState(null);
+                            
+                            // Add final message
+                            setMessages((prev) => [
+                                ...prev,
+                                {
+                                    type: 'assistant',
+                                    content: accumulatedMessage,
+                                    timestamp: new Date(),
+                                },
+                            ]);
+                            setTypingText('');
+                            
+                            // Reload recommendations
+                            setTimeout(() => loadRecommendations(), 500);
+                        } else if (data.type === 'error') {
+                            throw new Error(data.error);
+                        }
+                    }
+                }
+            }
 
             // Remove loading message
             setMessages((prev) => prev.filter((msg) => !msg.isLoading));
