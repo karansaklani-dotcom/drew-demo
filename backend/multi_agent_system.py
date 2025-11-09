@@ -179,25 +179,47 @@ CONTEXT: <json>
         })
         
         if not activities:
-            # Generate a helpful response even when no activities found
-            response_prompt = f"""The user said: "{state['user_prompt']}"
+            state["agent_states"].append({
+                "agent": "recommendation",
+                "status": "no_results",
+                "step": 2,
+                "message": "⚠️ No activities found. Trying broader search..."
+            })
+            
+            # Try fallback: get any activities
+            logger.info("No activities found, trying fallback search")
+            activities = await self.tools.search_activities(
+                query=state["user_prompt"],  # Use original prompt
+                filters=None,  # No filters
+                limit=10
+            )
+            
+            if not activities:
+                # Still nothing - generate helpful response
+                response_prompt = f"""The user said: "{state['user_prompt']}"
 
-No specific activities were found. Generate a friendly, helpful response that:
+No activities were found. Generate a friendly, helpful response that:
 1. Acknowledges their request
 2. Asks clarifying questions about what they're looking for
 3. Suggests being more specific (e.g., location, group size, type of activity)
 
 Keep it warm and conversational."""
-            
-            response = await self.llm.ainvoke([
-                SystemMessage(content=system_prompt),
-                HumanMessage(content=response_prompt)
-            ])
-            
-            state["final_response"] = response.content
-            state["next_agent"] = None
-            state["agent_history"].append("recommendation")
-            return state
+                
+                response = await self.llm.ainvoke([
+                    SystemMessage(content=system_prompt),
+                    HumanMessage(content=response_prompt)
+                ])
+                
+                state["final_response"] = response.content
+                state["next_agent"] = None
+                return state
+            else:
+                state["agent_states"].append({
+                    "agent": "recommendation",
+                    "status": "searched",
+                    "step": 2,
+                    "message": f"✓ Found {len(activities)} activities with broader search"
+                })
         
         # STEP 3: REFLECT
         state["agent_states"].append({
