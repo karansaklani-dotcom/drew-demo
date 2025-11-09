@@ -418,7 +418,7 @@ const Project = () => {
                         <button
                             onClick={sendMessage}
                             disabled={!inputValue.trim() || isSending}
-                            className="px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="px-4 py-3 bg-black text-white rounded-xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                             {isSending ? (
                                 <Loader className="w-5 h-5 animate-spin" />
