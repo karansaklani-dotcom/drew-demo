@@ -16,8 +16,13 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+    // Only fetch user if we have a token
+    const hasToken = !!getAuthToken();
+    
     // Use the useUserMe hook to get current user
-    const { data: user, isLoading: loading, error } = useUserMe();
+    const { data: user, isLoading: loading, error } = useUserMe({
+        enabled: hasToken, // Only fetch if we have a token
+    });
     const registerMutation = useUserRegister();
     const verifyMutation = useUserVerify();
     const onboardingMutation = useOnboardingComplete();
