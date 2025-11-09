@@ -174,6 +174,12 @@ Keep it warm and conversational."""
             return state
         
         # Reflect and create recommendations
+        state["agent_states"].append({
+            "agent": "recommendation",
+            "status": "reflecting",
+            "message": f"Analyzing {len(activities)} activities for best matches..."
+        })
+        
         recommendations = []
         for activity in activities[:3]:  # Top 3
             # Reflect
