@@ -3,5 +3,4 @@
    Backend URL: http://localhost:8001
 
 🔐 Step 1: Getting authentication token...
-   Creating new user...
-   ❌ Registration failed: {"detail":"Email already registered"}
+   ❌ Login failed: Internal Server Error
