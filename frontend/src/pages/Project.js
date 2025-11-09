@@ -209,65 +209,7 @@ const Project = () => {
                 }
             }
 
-            // Remove loading message
-            setMessages((prev) => prev.filter((msg) => !msg.isLoading));
-
-            // Update project name if provided
-            if (response.projectName) {
-                setProject(prev => ({
-                    ...prev,
-                    name: response.projectName,
-                    description: response.projectDescription || prev.description
-                }));
-            }
-
-            // Type out the response with animation
-            const fullMessage = response.message;
-            let currentIndex = 0;
-            setIsTyping(true);
-            setTypingText('');
-
-            typingIntervalRef.current = setInterval(() => {
-                if (currentIndex < fullMessage.length) {
-                    setTypingText(fullMessage.substring(0, currentIndex + 1));
-                    currentIndex++;
-                } else {
-                    clearInterval(typingIntervalRef.current);
-                    setIsTyping(false);
-                    
-                    // Add final message to history
-                    setMessages((prev) => [
-                        ...prev,
-                        {
-                            type: 'assistant',
-                            content: fullMessage,
-                            recommendations: response.recommendations || [],
-                            agentsUsed: response.agentsUsed || [],
-                            agentStates: response.agentStates || [],
-                            timestamp: new Date(),
-                        },
-                    ]);
-                    setTypingText('');
-                }
-            }, 30); // 30ms per character for smooth typing
-
-            // Show agent states progressively
-            if (response.agentStates && response.agentStates.length > 0) {
-                response.agentStates.forEach((state, index) => {
-                    setTimeout(() => {
-                        setAgentState(state.message);
-                    }, index * 800);
-                });
-                
-                // Clear after showing all states and reload recommendations
-                setTimeout(() => {
-                    setAgentState(null);
-                    loadRecommendations(); // Reload after states complete
-                }, response.agentStates.length * 800 + 1000);
-            } else {
-                // Reload immediately if no states
-                setTimeout(() => loadRecommendations(), 1000);
-            }
+            // Streaming handled above - this code is no longer needed
         } catch (error) {
             console.error('Error sending message:', error);
             setMessages((prev) => {
