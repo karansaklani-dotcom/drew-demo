@@ -235,15 +235,18 @@
 
   - task: "Backward compatibility endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "low"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented GET /events and GET /events/{id} for backward compatibility with old code"
+      - working: true
+        agent: "testing"
+        comment: "✅ Backward compatibility endpoints working: GET /api/events (200) returns {events: [...]} format, GET /api/events/{id} (200) returns activity data. Fixed expand parameter issue during testing."
 
   - task: "Data models for all entities"
     implemented: true
