@@ -205,15 +205,18 @@
 
   - task: "Onboarding endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented POST /onboarding with organization creation support"
+      - working: true
+        agent: "testing"
+        comment: "✅ POST /api/onboarding working correctly (200). Organization creation during onboarding working. User hasCompletedOnboarding flag properly set to true. Response format {success: true, user: {...}} correct."
 
   - task: "Auth logout endpoint"
     implemented: true
