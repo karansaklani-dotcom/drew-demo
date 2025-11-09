@@ -17,6 +17,7 @@ class MongoDBCheckpointer:
         self.db_name = db_name or config.mongodb.db_name
         self._checkpointer: Optional[AsyncMongoDBSaver] = None
         self._client: Optional[AsyncIOMotorClient] = None
+        self._context = None
         
     async def initialize(self) -> AsyncMongoDBSaver:
         """Initialize the MongoDB checkpointer."""
@@ -24,13 +25,16 @@ class MongoDBCheckpointer:
             try:
                 logger.info(f"Initializing MongoDB checkpointer: {self.mongo_url}/{self.db_name}")
                 
-                # Create MongoDB client and database
-                self._client = AsyncIOMotorClient(self.mongo_url)
-                db = self._client[self.db_name]
+                # Use the context manager to create the checkpointer
+                self._context = AsyncMongoDBSaver.from_conn_string(self.mongo_url)
+                self._checkpointer = await self._context.__aenter__()
                 
-                # Create AsyncMongoDBSaver with database instance
-                # Note: We use the async connection directly
-                self._checkpointer = AsyncMongoDBSaver(self._client, self.db_name)
+                # Store client reference
+                if hasattr(self._checkpointer, 'client'):
+                    self._client = self._checkpointer.client
+                else:
+                    # Fallback to creating our own client for utility methods
+                    self._client = AsyncIOMotorClient(self.mongo_url)
                 
                 # Setup indexes for better performance
                 await self._setup_indexes()
