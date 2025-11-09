@@ -37,10 +37,13 @@ const Project = () => {
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSending, setIsSending] = useState(false);
-    const [agentState, setAgentState] = useState(null); // 'searching', 'reflecting', 'customizing'
+    const [agentState, setAgentState] = useState(null);
+    const [typingText, setTypingText] = useState('');
+    const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef(null);
     const chatPanelRef = useRef(null);
     const hasAutoSent = useRef(false);
+    const typingIntervalRef = useRef(null);
 
     useEffect(() => {
         loadProject();
