@@ -34,10 +34,10 @@ class SupervisorState(TypedDict):
     
     # Agent routing
     next_agent: Optional[str]
-    agent_history: List[str]
+    agent_history: Annotated[List, operator.add]
     
     # Results
-    recommendations: List[Dict[str, Any]]
+    recommendations: Annotated[List, operator.add]
     current_recommendation_id: Optional[str]
     
     # Response
