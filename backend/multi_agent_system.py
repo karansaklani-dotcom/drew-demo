@@ -207,6 +207,12 @@ Keep it warm and conversational."""
         state["recommendations"] = recommendations
         state["user_context"] = user_context
         
+        state["agent_states"].append({
+            "agent": "recommendation",
+            "status": "completed",
+            "message": f"Created {len(recommendations)} recommendations"
+        })
+        
         if not recommendations:
             # Found activities but none passed reflection
             response_prompt = f"""The user said: "{state['user_prompt']}"
