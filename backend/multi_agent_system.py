@@ -315,12 +315,25 @@ Keep it conversational, warm, and helpful. Mention 1-2 highlights."""
         ])
         
         state["final_response"] = response.content
-        state["agent_history"].append("recommendation")
         
-        # Decide next agent
+        # Check if this agent already ran - prevent loops
+        agent_history = state.get("agent_history", [])
+        if "recommendation" not in agent_history:
+            agent_history.append("recommendation")
+            state["agent_history"] = agent_history
+        else:
+            logger.warning("Recommendation agent already ran - preventing duplicate execution")
+            state["next_agent"] = None
+            return state
+        
+        # Decide next agent - only if we have recommendations and haven't processed them yet
         if recommendations and len(recommendations) > 0:
-            state["next_agent"] = "itinerary_builder"
-            state["current_recommendation_id"] = recommendations[0].get('id')
+            # Only route to itinerary if we haven't already
+            if "itinerary_builder" not in agent_history:
+                state["next_agent"] = "itinerary_builder"
+                state["current_recommendation_id"] = recommendations[0].get('id')
+            else:
+                state["next_agent"] = None
         else:
             state["next_agent"] = None
         
