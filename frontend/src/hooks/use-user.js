@@ -47,9 +47,13 @@ export function useUserVerify() {
 
     return useApiMutation({
         mutationFn: (data) => endpoints.user.verify.query(data),
-        onSuccess: (userData) => {
+        onSuccess: (response) => {
+            // Response contains { token, user }
+            // Token is already stored by api interceptor
             // Update the user/me cache with the logged in user
-            queryClient.setQueryData(endpoints.user.me.getKeys(), userData);
+            if (response.user) {
+                queryClient.setQueryData(endpoints.user.me.getKeys(), response.user);
+            }
         },
     });
 }
