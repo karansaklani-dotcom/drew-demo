@@ -512,7 +512,8 @@ class SupervisorAgent:
             "recommendations": [],
             "current_recommendation_id": None,
             "final_response": "",
-            "metadata": {}
+            "metadata": {},
+            "agent_states": []
         }
         
         # Run the graph
