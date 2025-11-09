@@ -136,9 +136,7 @@ const EventDiscovery = () => {
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         onClick={() => {
-                                            // Navigate to organization settings
-                                            // TODO: Create organization settings page
-                                            navigate("/profile");
+                                            navigate("/settings/organization");
                                         }}
                                     >
                                         <Building className="mr-2 h-4 w-4" />
