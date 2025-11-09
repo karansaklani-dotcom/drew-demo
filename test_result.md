@@ -103,15 +103,14 @@
 #====================================================================================================
 
 ## user_problem_statement: |
-  Build a backend repository for Agentic architecture using LangGraph with the following requirements:
-  1. Checkpointing within agent execution and persist execution state in persistence layer
-  2. Thread management with messages containing content, toolCall information
-  3. Tools for agents according to requirements
-  4. Support sub-agents within agents with subthreads and subcheckpointing
-  5. API utilities to communicate with main backend
-  6. Server-to-server API gateway with cookie passthrough
-  7. Thread summarization after token limits
-  8. Embedding-based search on messages in MongoDB
+  Build the backend APIs to integrate with the Frontend routes according to the API requirements document.
+  The frontend expects JWT-based authentication with comprehensive endpoints for:
+  - User authentication (register, login, logout, get current user, update user)
+  - Organization management (CRUD operations)
+  - Activity/Event management (list, get, create, update with filters and expand parameter)
+  - Occasion management (list, get)
+  - Offering management (list, get)
+  - Onboarding completion
 
 ## backend:
   - task: "MongoDB checkpointing setup with LangGraph"
