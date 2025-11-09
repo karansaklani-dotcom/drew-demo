@@ -131,10 +131,25 @@ const Project = () => {
                         content: response.message,
                         recommendations: response.recommendations || [],
                         agentsUsed: response.agentsUsed || [],
+                        agentStates: response.agentStates || [],
                         timestamp: new Date(),
                     },
                 ];
             });
+
+            // Show agent states progressively
+            if (response.agentStates && response.agentStates.length > 0) {
+                response.agentStates.forEach((state, index) => {
+                    setTimeout(() => {
+                        setAgentState(state.message);
+                    }, index * 800);
+                });
+                
+                // Clear after showing all states
+                setTimeout(() => {
+                    setAgentState(null);
+                }, response.agentStates.length * 800 + 1000);
+            }
 
             // Reload recommendations if new ones were created
             if (response.recommendations && response.recommendations.length > 0) {
