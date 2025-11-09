@@ -185,15 +185,14 @@ const Project = () => {
                     }, index * 800);
                 });
                 
-                // Clear after showing all states
+                // Clear after showing all states and reload recommendations
                 setTimeout(() => {
                     setAgentState(null);
+                    loadRecommendations(); // Reload after states complete
                 }, response.agentStates.length * 800 + 1000);
-            }
-
-            // Reload recommendations if new ones were created
-            if (response.recommendations && response.recommendations.length > 0) {
-                loadRecommendations();
+            } else {
+                // Reload immediately if no states
+                setTimeout(() => loadRecommendations(), 1000);
             }
         } catch (error) {
             console.error('Error sending message:', error);
