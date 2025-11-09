@@ -15,7 +15,11 @@ from models import (
     ActivityCreate, Activity, ActivityUpdate,
     OnboardingData, Offering, Occasion
 )
-from models_extended import AgentPromptRequest, AgentResponse
+from models_extended import (
+    AgentPromptRequest, AgentResponse,
+    ProjectCreate, Project, ProjectUpdate,
+    RecommendationCreate, Recommendation, RecommendationUpdate
+)
 from auth import (
     hash_password, verify_password, create_access_token, 
     get_current_user
