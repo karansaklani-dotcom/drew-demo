@@ -922,6 +922,91 @@ async def delete_recommendation(
 # AI AGENT ENDPOINTS
 # =============================================================================
 
+@api_router.post("/project/{project_id}/chat/stream")
+async def project_chat_stream(
+    project_id: str,
+    request: Dict[str, Any],
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Stream chat with AI agent for a specific project
+    Returns Server-Sent Events with real-time agent progress
+    """
+    if not supervisor_agent:
+        raise HTTPException(
+            status_code=503,
+            detail="AI service is not available"
+        )
+    
+    async def event_generator():
+        try:
+            # Verify project
+            project = await db.projects.find_one({
+                "_id": ObjectId(project_id) if ObjectId.is_valid(project_id) else None,
+                "userId": current_user['user_id']
+            })
+            
+            if not project:
+                yield f"data: {json.dumps({'error': 'Project not found'})}\n\n"
+                return
+            
+            prompt = request.get('prompt', request.get('message', ''))
+            if not prompt:
+                yield f"data: {json.dumps({'error': 'Prompt required'})}\n\n"
+                return
+            
+            # Send initial state
+            yield f"data: {json.dumps({'type': 'start', 'message': 'Starting AI agents...'})}\n\n"
+            await asyncio.sleep(0.1)
+            
+            # Run agent with streaming state updates
+            # We'll modify supervisor to yield states
+            response = await supervisor_agent.run(
+                prompt=prompt,
+                user_id=current_user['user_id'],
+                project_id=project_id,
+                thread_id=project.get('threadId')
+            )
+            
+            # Stream agent states
+            for state in response.get('agentStates', []):
+                yield f"data: {json.dumps({'type': 'agent_state', 'state': state})}\n\n"
+                await asyncio.sleep(0.1)
+            
+            # Stream project updates
+            if response.get('projectName'):
+                await db.projects.update_one(
+                    {"_id": ObjectId(project_id)},
+                    {"$set": {
+                        "name": response['projectName'],
+                        "description": response['projectDescription']
+                    }}
+                )
+                yield f"data: {json.dumps({{'type': 'project_update', 'name': response['projectName'], 'description': response['projectDescription']}})}\n\n"
+            
+            # Stream response message character by character
+            message = response.get('message', '')
+            for i in range(0, len(message), 10):  # 10 chars at a time
+                chunk = message[i:i+10]
+                yield f"data: {json.dumps({'type': 'message_chunk', 'chunk': chunk})}\n\n"
+                await asyncio.sleep(0.03)
+            
+            # Send completion
+            yield f"data: {json.dumps({{'type': 'complete', 'recommendationCount': len(response.get('recommendations', []))}})}\n\n"
+            
+        except Exception as e:
+            logger.error(f"Streaming error: {e}", exc_info=True)
+            yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+    
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        }
+    )
+
 @api_router.post("/project/{project_id}/chat")
 async def project_chat(
     project_id: str,
@@ -929,7 +1014,7 @@ async def project_chat(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Chat with AI agent for a specific project
+    Chat with AI agent for a specific project (non-streaming fallback)
     Creates recommendations, builds itineraries, manages offerings
     """
     if not supervisor_agent:
