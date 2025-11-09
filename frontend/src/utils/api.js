@@ -10,20 +10,25 @@ import axios from "axios";
 const BACKEND_URL =
     process.env.REACT_APP_DREW_AI_BACKEND_URL || "http://localhost:3000";
 const REDIRECT_PATH_KEY = "redirect_path";
+const TOKEN_KEY = "auth_token";
 
 // Create axios instance with default config
 const apiClient = axios.create({
     baseURL: BACKEND_URL,
-    withCredentials: true, // Important for cookie-based sessions
+    withCredentials: false, // Changed to false for JWT-based auth
     headers: {
         "Content-Type": "application/json",
     },
 });
 
-// Request interceptor to add auth headers if needed
+// Request interceptor to add JWT token
 apiClient.interceptors.request.use(
     (config) => {
-        // Session cookies are automatically sent with withCredentials: true
+        // Get token from localStorage
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
     },
     (error) => {
