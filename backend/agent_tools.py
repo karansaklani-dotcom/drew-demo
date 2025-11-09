@@ -106,6 +106,12 @@ class AgentTools:
                 "score": score
             }
             
+            # Add customization if provided
+            if customized_title:
+                rec_data["customizedTitle"] = customized_title
+            if customized_description:
+                rec_data["customizedDescription"] = customized_description
+            
             if existing:
                 # Update existing recommendation
                 rec_data["updatedAt"] = activity.get('updatedAt')
