@@ -202,31 +202,100 @@ const Project = () => {
         );
     }
 
+    const getAgentStateDisplay = () => {
+        if (!agentState) return null;
+        
+        const states = {
+            searching: { icon: SearchIcon, text: 'Searching activities...', color: 'text-blue-600' },
+            reflecting: { icon: Lightbulb, text: 'Analyzing best matches...', color: 'text-yellow-600' },
+            customizing: { icon: Brain, text: 'Personalizing recommendations...', color: 'text-purple-600' }
+        };
+        
+        const state = states[agentState];
+        if (!state) return null;
+        
+        const Icon = state.icon;
+        return (
+            <div className="flex items-center gap-2 text-sm">
+                <Icon className={`w-4 h-4 ${state.color} animate-pulse`} />
+                <span className="text-gray-600">{state.text}</span>
+            </div>
+        );
+    };
+
     return (
-        <div className="flex h-screen bg-gray-50">
-            {/* Left Panel - Chat */}
-            <div
-                ref={chatPanelRef}
-                className="w-1/3 bg-white border-r border-gray-200 flex flex-col"
-            >
-                {/* Header */}
-                <div className="p-4 border-b border-gray-200">
-                    <button
-                        onClick={() => navigate('/discover')}
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-3"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        <span>Back to Discovery</span>
-                    </button>
-                    <div>
-                        <h1 className="text-xl font-bold text-gray-900">
-                            {project.name}
-                        </h1>
-                        <p className="text-sm text-gray-500 mt-1">
-                            {project.description}
-                        </p>
+        <div className="flex flex-col h-screen bg-gray-50">
+            {/* Top Navigation */}
+            <header className="border-b bg-white z-50">
+                <div className="max-w-7xl mx-auto px-4 py-4">
+                    <div className="flex items-center justify-between">
+                        {/* Logo */}
+                        <img
+                            src="/assets/logo-small.png"
+                            alt="Drew"
+                            className="h-8 cursor-pointer"
+                            onClick={() => navigate('/')}
+                        />
+
+                        {/* Project name */}
+                        <div className="flex-1 mx-8">
+                            <h1 className="text-lg font-semibold text-gray-900">
+                                {project.name}
+                            </h1>
+                        </div>
+
+                        {/* Right icons */}
+                        <div className="flex items-center gap-4">
+                            <Button variant="ghost" size="icon" className="rounded-full">
+                                <Globe className="h-5 w-5" />
+                            </Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="rounded-full">
+                                        <Settings className="h-5 w-5" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                                        <UserIcon className="mr-2 h-4 w-4" />
+                                        Profile Settings
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => navigate('/settings/organization')}>
+                                        <Building className="mr-2 h-4 w-4" />
+                                        Organization Settings
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="rounded-full bg-gray-100 hover:bg-gray-200"
+                                onClick={() => navigate('/profile')}
+                            >
+                                <UserIcon className="h-5 w-5" />
+                            </Button>
+                        </div>
                     </div>
                 </div>
+            </header>
+
+            <div className="flex flex-1 overflow-hidden">
+                {/* Left Panel - Chat */}
+                <div
+                    ref={chatPanelRef}
+                    className="w-1/3 bg-white border-r border-gray-200 flex flex-col"
+                >
+                    {/* Project Info */}
+                    <div className="p-4 border-b border-gray-200">
+                        <p className="text-sm text-gray-500">
+                            {project.description}
+                        </p>
+                        {agentState && (
+                            <div className="mt-3 p-2 bg-indigo-50 rounded-lg">
+                                {getAgentStateDisplay()}
+                            </div>
+                        )}
+                    </div>
 
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
