@@ -68,6 +68,10 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
+                        <Route
+                            path="/settings/organization"
+                            element={<OrganizationSettings />}
+                        />
                     </Routes>
                     <Toaster />
                 </BrowserRouter>
