@@ -93,19 +93,23 @@ Be conversational and helpful!"""
             f"{msg.type}: {msg.content}" for msg in state["messages"][-5:]
         ])
         
-        # Ask LLM to extract search parameters
-        analysis_prompt = f"""Based on this user request, extract search parameters:
+        # Ask LLM to extract search parameters and generate project name
+        analysis_prompt = f"""Based on this user request, extract information and create project details:
 
 User: {state['user_prompt']}
 
 Previous context: {conversation}
 
 Provide:
-1. Search query (concise, 1-2 sentences)
-2. Filters (JSON format): location, minParticipants, maxParticipants, priceMax, category
-3. User context (JSON): groupSize, budget, occasion, preferences
+1. Project Name (4-6 words, catchy title)
+2. Project Description (1 sentence summary)
+3. Search query (concise, 1-2 sentences)
+4. Filters (JSON format): location, minParticipants, maxParticipants, priceMax, category
+5. User context (JSON): groupSize, budget, occasion, preferences
 
 Format:
+PROJECT_NAME: <name>
+PROJECT_DESCRIPTION: <description>
 SEARCH_QUERY: <query>
 FILTERS: <json>
 CONTEXT: <json>
