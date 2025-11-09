@@ -107,19 +107,26 @@ const Project = () => {
         setIsSending(true);
 
         try {
-            // Add loading message
+            // Add loading message with agent states
             const loadingMessage = {
                 type: 'assistant',
-                content: 'Thinking...',
+                content: 'Starting AI agents...',
                 isLoading: true,
                 timestamp: new Date(),
             };
             setMessages((prev) => [...prev, loadingMessage]);
 
+            // Simulate agent state progression
+            setAgentState('searching');
+            setTimeout(() => setAgentState('reflecting'), 1000);
+            setTimeout(() => setAgentState('customizing'), 2000);
+
             const response = await api(`project/${projectId}/chat`, {
                 method: 'POST',
                 data: { prompt: content },
             });
+            
+            setAgentState(null);
 
             // Remove loading message and add actual response
             setMessages((prev) => {
