@@ -48,37 +48,26 @@ def get_current_context() -> Dict[str, Any]:
 @tool("search_activities", args_schema=SearchActivitiesInput, return_direct=False)
 async def search_activities_tool(
     query: str,
-    location: Optional[str] = None,
-    min_participants: Optional[int] = None,
-    max_participants: Optional[int] = None,
-    price_max: Optional[float] = None,
-    category: Optional[str] = None,
     limit: int = 5
 ) -> str:
     """
-    Search for activities based on user requirements using semantic search.
-    Returns a list of matching activities with their details.
+    Search for activities using pure semantic search based on natural language query.
+    The query should include all requirements: location, group size, budget, preferences, etc.
+    
+    Example queries:
+    - "team building activities in San Francisco for 15 people"
+    - "volunteer opportunities for small groups in Oakland"
+    - "creative workshops for corporate teams in the Bay Area"
+    
+    Returns a list of matching activities ranked by semantic similarity.
     """
     if not _agent_tools_instance:
         return "Error: Agent tools not initialized"
     
-    # Build filters
-    filters = {}
-    if location:
-        filters['city'] = {"$regex": location, "$options": "i"}
-    if min_participants:
-        filters['minParticipants'] = {"$lte": min_participants}
-    if max_participants:
-        filters['maxParticipants'] = {"$gte": max_participants}
-    if price_max is not None:
-        filters['price'] = {"$lte": price_max}
-    if category:
-        filters['category'] = {"$regex": category, "$options": "i"}
-    
-    # Search activities
+    # Pure semantic search - no filters
     activities = await _agent_tools_instance.search_activities(
         query=query,
-        filters=filters if filters else None,
+        filters=None,
         limit=limit
     )
     
