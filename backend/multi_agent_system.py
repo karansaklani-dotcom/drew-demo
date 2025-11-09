@@ -544,6 +544,8 @@ class SupervisorAgent:
                 "agentStates": final_state.get("agent_states", []),
                 "threadId": thread_id,
                 "projectId": project_id,
+                "projectName": final_state.get("metadata", {}).get("suggested_project_name"),
+                "projectDescription": final_state.get("metadata", {}).get("suggested_project_description"),
                 "metadata": {
                     "userContext": final_state.get("user_context", {}),
                     "recommendationCount": len(final_state["recommendations"])
