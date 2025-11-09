@@ -190,15 +190,18 @@
 
   - task: "Offering endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented GET /offering with pagination/search, GET /offering/{id}"
+      - working: true
+        agent: "testing"
+        comment: "✅ Offering endpoints working: GET /api/offering (200) with proper pagination format {rows, count, total, limit, offset}. Authentication required and working."
 
   - task: "Onboarding endpoint"
     implemented: true
