@@ -11,6 +11,7 @@ import EventDiscovery from "./pages/EventDiscovery";
 import EventDetail from "./pages/EventDetail";
 import Profile from "./pages/Profile";
 import OrganizationSettings from "./pages/OrganizationSettings";
+import Project from "./pages/Project";
 
 // Create a query client
 const queryClient = new QueryClient({
