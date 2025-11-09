@@ -36,6 +36,9 @@ const EventDiscovery = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showFilters, setShowFilters] = useState(false);
+    const [showChatInput, setShowChatInput] = useState(false);
+    const [chatPrompt, setChatPrompt] = useState("");
+    const [isCreatingProject, setIsCreatingProject] = useState(false);
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
