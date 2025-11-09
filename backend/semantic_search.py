@@ -139,33 +139,29 @@ class SemanticSearchService:
         if filters:
             pipeline.append({"$match": filters})
         
-        # Vector search using $vectorSearch (if MongoDB Atlas)
-        # Or cosine similarity calculation for local MongoDB
+        # Match documents with embeddings
+        pipeline.append({"$match": {"embedding": {"$exists": True}}})
+        
+        # Simple approach: Add query embedding as a literal and calculate similarity
+        # This works better with MongoDB's aggregation framework
         pipeline.extend([
             {
                 "$addFields": {
                     "similarity": {
-                        "$let": {
-                            "vars": {
-                                "dotProduct": {
-                                    "$reduce": {
-                                        "input": {"$range": [0, len(query_embedding)]},
-                                        "initialValue": 0,
-                                        "in": {
-                                            "$add": [
-                                                "$$value",
-                                                {
-                                                    "$multiply": [
-                                                        {"$arrayElemAt": ["$embedding", "$$this"]},
-                                                        query_embedding["$$this"]
-                                                    ]
-                                                }
-                                            ]
-                                        }
+                        "$reduce": {
+                            "input": {"$zip": {"inputs": ["$embedding", query_embedding]}},
+                            "initialValue": 0,
+                            "in": {
+                                "$add": [
+                                    "$$value",
+                                    {
+                                        "$multiply": [
+                                            {"$arrayElemAt": ["$$this", 0]},
+                                            {"$arrayElemAt": ["$$this", 1]}
+                                        ]
                                     }
-                                }
-                            },
-                            "in": "$$dotProduct"
+                                ]
+                            }
                         }
                     }
                 }
