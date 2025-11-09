@@ -278,6 +278,12 @@ class ItineraryBuilderAgent:
         """Execute itinerary builder agent"""
         logger.info("📅 Running Itinerary Builder Agent")
         
+        state["agent_states"].append({
+            "agent": "itinerary_builder",
+            "status": "started",
+            "message": "Customizing activity itineraries..."
+        })
+        
         if not state.get("current_recommendation_id"):
             logger.warning("No recommendation to build itinerary for")
             state["next_agent"] = None
