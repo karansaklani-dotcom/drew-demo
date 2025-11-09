@@ -77,6 +77,22 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
+                        <Route
+                            path="/discover"
+                            element={
+                                <ProtectedRoute>
+                                    <EventDiscovery />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/project/:projectId"
+                            element={
+                                <ProtectedRoute>
+                                    <Project />
+                                </ProtectedRoute>
+                            }
+                        />
                     </Routes>
                     <Toaster />
                 </BrowserRouter>
