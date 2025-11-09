@@ -152,8 +152,13 @@ const RecommendationDetail = () => {
                         <div className="space-y-4">
                             <div>
                                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                                    {recommendation.title}
+                                    {recommendation.customizedTitle || recommendation.title}
                                 </h1>
+                                {recommendation.customizedTitle && (
+                                    <p className="text-sm text-gray-500 mb-2">
+                                        Original: {recommendation.title}
+                                    </p>
+                                )}
                                 {activity?.host && (
                                     <p className="text-gray-600">
                                         Hosted by <span className="font-semibold">{activity.host.name}</span>
