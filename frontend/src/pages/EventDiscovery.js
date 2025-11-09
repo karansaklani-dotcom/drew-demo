@@ -288,9 +288,9 @@ const EventDiscovery = () => {
                                 className="group cursor-pointer"
                                 onClick={() => handleEventClick(event.id)}
                             >
-                                <div className="relative overflow-hidden rounded-2xl mb-3 aspect-square">
+                                <div className="relative overflow-hidden rounded-2xl mb-3 aspect-[4/3]">
                                     <img
-                                        src={event.images[0]}
+                                        src={event.images?.[0] || event.thumbnailUrl || 'https://via.placeholder.com/400x300'}
                                         alt={event.title}
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                     />
