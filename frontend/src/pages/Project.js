@@ -93,9 +93,11 @@ const Project = () => {
 
     const loadRecommendations = async () => {
         try {
+            console.log('Loading recommendations for project:', projectId);
             const data = await api(`recommendation?project_id=${projectId}`, {
                 method: 'GET',
             });
+            console.log('Recommendations loaded:', data);
             setRecommendations(data.rows || []);
         } catch (error) {
             console.error('Error loading recommendations:', error);
