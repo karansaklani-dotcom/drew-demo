@@ -986,13 +986,19 @@ async def project_chat_stream(
             
             # Stream response message character by character
             message = response.get('message', '')
-            for i in range(0, len(message), 10):  # 10 chars at a time
-                chunk = message[i:i+10]
-                yield f"data: {json.dumps({'type': 'message_chunk', 'chunk': chunk})}\n\n"
-                await asyncio.sleep(0.03)
+            logger.info(f"Streaming message: {len(message)} characters")
+            
+            if message:
+                for i in range(0, len(message), 10):  # 10 chars at a time
+                    chunk = message[i:i+10]
+                    yield f"data: {json.dumps({'type': 'message_chunk', 'chunk': chunk})}\n\n"
+                    await asyncio.sleep(0.03)
+            else:
+                logger.warning("No message to stream - response.get('message') is empty")
             
             # Send completion
             yield f"data: {json.dumps({{'type': 'complete', 'recommendationCount': len(response.get('recommendations', []))}})}\n\n"
+            logger.info("Streaming complete")
             
         except Exception as e:
             logger.error(f"Streaming error: {e}", exc_info=True)
