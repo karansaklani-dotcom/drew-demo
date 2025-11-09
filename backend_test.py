@@ -138,7 +138,7 @@ class DrewAPITester:
         
         # Test invalid credentials (should return 401)
         invalid_login = {
-            "email": "sarah.johnson@example.com",
+            "email": f"sarah.johnson.{timestamp}@example.com",
             "password": "WrongPassword"
         }
         
