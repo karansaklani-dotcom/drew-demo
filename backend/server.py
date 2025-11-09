@@ -604,6 +604,306 @@ async def complete_onboarding(
     }
 
 # =============================================================================
+# PROJECT ENDPOINTS
+# =============================================================================
+
+@api_router.post("/project", status_code=201)
+async def create_project(
+    project_data: ProjectCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a new project"""
+    import uuid
+    
+    project_doc = {
+        **project_data.dict(),
+        "userId": current_user['user_id'],
+        "threadId": str(uuid.uuid4()),  # Generate new thread ID for agent
+        "recommendationIds": [],
+        "createdAt": datetime.utcnow(),
+        "updatedAt": datetime.utcnow()
+    }
+    
+    result = await db.projects.insert_one(project_doc)
+    project_doc['_id'] = result.inserted_id
+    
+    return serialize_doc(project_doc)
+
+@api_router.get("/project")
+async def list_projects(
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    current_user: dict = Depends(get_current_user)
+):
+    """List user's projects"""
+    user_id = current_user['user_id']
+    
+    query = {"userId": user_id}
+    
+    # Get total count
+    total = await db.projects.count_documents(query)
+    
+    # Get paginated results
+    cursor = db.projects.find(query).skip(offset).limit(limit).sort("createdAt", -1)
+    projects = await cursor.to_list(length=limit)
+    
+    return {
+        "rows": serialize_list(projects),
+        "count": len(projects),
+        "total": total,
+        "limit": limit,
+        "offset": offset
+    }
+
+@api_router.get("/project/{project_id}")
+async def get_project(
+    project_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get project by ID"""
+    if not ObjectId.is_valid(project_id):
+        raise HTTPException(status_code=400, detail="Invalid project ID")
+    
+    project = await db.projects.find_one({
+        "_id": ObjectId(project_id),
+        "userId": current_user['user_id']
+    })
+    
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Populate occasions if they exist
+    if project.get('occasionIds'):
+        occasion_object_ids = [ObjectId(oid) for oid in project['occasionIds'] if ObjectId.is_valid(oid)]
+        if occasion_object_ids:
+            occasions = await db.occasions.find({"_id": {"$in": occasion_object_ids}}).to_list(100)
+            project['occasions'] = serialize_list(occasions)
+    
+    return serialize_doc(project)
+
+@api_router.put("/project/{project_id}")
+async def update_project(
+    project_id: str,
+    update_data: ProjectUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update project"""
+    if not ObjectId.is_valid(project_id):
+        raise HTTPException(status_code=400, detail="Invalid project ID")
+    
+    # Build update document
+    update_doc = {k: v for k, v in update_data.dict(exclude_unset=True).items() if v is not None}
+    
+    if not update_doc:
+        raise HTTPException(status_code=400, detail="No update data provided")
+    
+    update_doc['updatedAt'] = datetime.utcnow()
+    
+    # Update project
+    result = await db.projects.update_one(
+        {"_id": ObjectId(project_id), "userId": current_user['user_id']},
+        {"$set": update_doc}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Fetch updated project
+    updated_project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    
+    return serialize_doc(updated_project)
+
+@api_router.delete("/project/{project_id}")
+async def delete_project(
+    project_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete project"""
+    if not ObjectId.is_valid(project_id):
+        raise HTTPException(status_code=400, detail="Invalid project ID")
+    
+    result = await db.projects.delete_one({
+        "_id": ObjectId(project_id),
+        "userId": current_user['user_id']
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Also delete associated recommendations
+    await db.recommendations.delete_many({"projectId": project_id})
+    
+    return {"success": True, "message": "Project deleted"}
+
+# =============================================================================
+# RECOMMENDATION ENDPOINTS
+# =============================================================================
+
+@api_router.post("/recommendation", status_code=201)
+async def create_recommendation(
+    rec_data: RecommendationCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a new recommendation"""
+    # Verify project belongs to user
+    project = await db.projects.find_one({
+        "_id": ObjectId(rec_data.projectId) if ObjectId.is_valid(rec_data.projectId) else None,
+        "userId": current_user['user_id']
+    })
+    
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    rec_doc = {
+        **rec_data.dict(),
+        "userId": current_user['user_id'],
+        "score": 0.0,
+        "createdAt": datetime.utcnow(),
+        "updatedAt": datetime.utcnow()
+    }
+    
+    result = await db.recommendations.insert_one(rec_doc)
+    rec_id = str(result.inserted_id)
+    rec_doc['_id'] = result.inserted_id
+    
+    # Add recommendation ID to project
+    await db.projects.update_one(
+        {"_id": ObjectId(rec_data.projectId)},
+        {"$push": {"recommendationIds": rec_id}}
+    )
+    
+    return serialize_doc(rec_doc)
+
+@api_router.get("/recommendation")
+async def list_recommendations(
+    project_id: Optional[str] = None,
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    current_user: dict = Depends(get_current_user)
+):
+    """List recommendations for a project or user"""
+    query = {"userId": current_user['user_id']}
+    
+    if project_id:
+        query["projectId"] = project_id
+    
+    # Get total count
+    total = await db.recommendations.count_documents(query)
+    
+    # Get paginated results
+    cursor = db.recommendations.find(query).skip(offset).limit(limit).sort("createdAt", -1)
+    recommendations = await cursor.to_list(length=limit)
+    
+    return {
+        "rows": serialize_list(recommendations),
+        "count": len(recommendations),
+        "total": total,
+        "limit": limit,
+        "offset": offset
+    }
+
+@api_router.get("/recommendation/{rec_id}")
+async def get_recommendation(
+    rec_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get recommendation by ID with populated activity data"""
+    if not ObjectId.is_valid(rec_id):
+        raise HTTPException(status_code=400, detail="Invalid recommendation ID")
+    
+    rec = await db.recommendations.find_one({
+        "_id": ObjectId(rec_id),
+        "userId": current_user['user_id']
+    })
+    
+    if not rec:
+        raise HTTPException(status_code=404, detail="Recommendation not found")
+    
+    # Populate activity if exists
+    if rec.get('activityId') and ObjectId.is_valid(rec['activityId']):
+        activity = await db.activities.find_one({"_id": ObjectId(rec['activityId'])})
+        if activity:
+            rec['activity'] = serialize_doc(activity)
+    
+    # Populate offerings
+    if rec.get('offeringIds'):
+        offering_ids = [ObjectId(oid) for oid in rec['offeringIds'] if ObjectId.is_valid(oid)]
+        if offering_ids:
+            offerings = await db.offerings.find({"_id": {"$in": offering_ids}}).to_list(100)
+            rec['offerings'] = serialize_list(offerings)
+    
+    # Populate prerequisites
+    if rec.get('preRequisiteIds'):
+        prereq_ids = [ObjectId(oid) for oid in rec['preRequisiteIds'] if ObjectId.is_valid(oid)]
+        if prereq_ids:
+            prereqs = await db.prerequisites.find({"_id": {"$in": prereq_ids}}).to_list(100)
+            rec['preRequisites'] = serialize_list(prereqs)
+    
+    return serialize_doc(rec)
+
+@api_router.put("/recommendation/{rec_id}")
+async def update_recommendation(
+    rec_id: str,
+    update_data: RecommendationUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update recommendation"""
+    if not ObjectId.is_valid(rec_id):
+        raise HTTPException(status_code=400, detail="Invalid recommendation ID")
+    
+    # Build update document
+    update_doc = {k: v for k, v in update_data.dict(exclude_unset=True).items() if v is not None}
+    
+    if not update_doc:
+        raise HTTPException(status_code=400, detail="No update data provided")
+    
+    update_doc['updatedAt'] = datetime.utcnow()
+    
+    # Update recommendation
+    result = await db.recommendations.update_one(
+        {"_id": ObjectId(rec_id), "userId": current_user['user_id']},
+        {"$set": update_doc}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Recommendation not found")
+    
+    # Fetch updated recommendation
+    updated_rec = await db.recommendations.find_one({"_id": ObjectId(rec_id)})
+    
+    return serialize_doc(updated_rec)
+
+@api_router.delete("/recommendation/{rec_id}")
+async def delete_recommendation(
+    rec_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete recommendation"""
+    if not ObjectId.is_valid(rec_id):
+        raise HTTPException(status_code=400, detail="Invalid recommendation ID")
+    
+    # Get recommendation to find project
+    rec = await db.recommendations.find_one({
+        "_id": ObjectId(rec_id),
+        "userId": current_user['user_id']
+    })
+    
+    if not rec:
+        raise HTTPException(status_code=404, detail="Recommendation not found")
+    
+    # Delete recommendation
+    await db.recommendations.delete_one({"_id": ObjectId(rec_id)})
+    
+    # Remove from project's recommendation list
+    if rec.get('projectId'):
+        await db.projects.update_one(
+            {"_id": ObjectId(rec['projectId'])},
+            {"$pull": {"recommendationIds": rec_id}}
+        )
+    
+    return {"success": True, "message": "Recommendation deleted"}
+
+# =============================================================================
 # AI AGENT ENDPOINTS
 # =============================================================================
 
