@@ -819,35 +819,16 @@ async def list_recommendations(
     }
 
 @api_router.get("/recommendation/{rec_id}")
-async def get_recommendation(
-    rec_id: str,
-    current_user: dict = Depends(get_current_user)
-):
-    """Get recommendation by ID with populated activity data"""
+async def get_recommendation(rec_id: str):
+    """Get recommendation by ID with populated activity data - public access"""
     if not ObjectId.is_valid(rec_id):
         raise HTTPException(status_code=400, detail="Invalid recommendation ID")
     
-    # First, try to find the recommendation
+    # Find the recommendation - no authentication required
     rec = await db.recommendations.find_one({"_id": ObjectId(rec_id)})
     
     if not rec:
         raise HTTPException(status_code=404, detail="Recommendation not found")
-    
-    # Check access: user must be the owner OR have access to the project
-    is_owner = rec.get('userId') == current_user['user_id']
-    
-    if not is_owner:
-        # Check if user has access to the project
-        project_id = rec.get('projectId')
-        if project_id and ObjectId.is_valid(project_id):
-            project = await db.projects.find_one({
-                "_id": ObjectId(project_id),
-                "userId": current_user['user_id']
-            })
-            if not project:
-                raise HTTPException(status_code=403, detail="Access denied")
-        else:
-            raise HTTPException(status_code=403, detail="Access denied")
     
     # Populate activity if exists
     if rec.get('activityId') and ObjectId.is_valid(rec['activityId']):
