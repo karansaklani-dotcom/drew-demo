@@ -290,15 +290,15 @@
 
 ## test_plan:
   current_focus:
-    - "MongoDB checkpointing setup with LangGraph"
-    - "Thread management system with messages and embeddings"
-    - "Base agent with LangGraph and checkpointing"
-    - "Event discovery agent with tools"
-    - "Sub-agent support with subthreads and subcheckpointing"
-    - "API gateway with cookie passthrough"
-    - "FastAPI server with all endpoints"
+    - "User authentication endpoints with JWT"
+    - "User update endpoint"
+    - "Organization CRUD endpoints"
+    - "Activity/Event endpoints with filters"
+    - "Onboarding endpoint"
+    - "API client JWT authentication"
+    - "AuthContext JWT integration"
   stuck_tasks: []
-  test_all: false
+  test_all: true
   test_priority: "high_first"
 
 ## agent_communication:
