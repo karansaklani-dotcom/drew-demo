@@ -94,6 +94,14 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
+                        <Route
+                            path="/project/:projectId/recommendation/:recommendationId"
+                            element={
+                                <ProtectedRoute>
+                                    <RecommendationDetail />
+                                </ProtectedRoute>
+                            }
+                        />
                     </Routes>
                     <Toaster />
                 </BrowserRouter>
