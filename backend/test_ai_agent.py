@@ -79,21 +79,62 @@ async def test_agent_via_api():
     # Get backend URL
     backend_url = os.environ.get('REACT_APP_DREW_AI_BACKEND_URL', 'http://localhost:8001')
     
-    # Create test user and project
-    user_id = await create_test_user()
-    project_id = await create_test_project(user_id)
-    
     print(f"\n🧪 Testing AI Agent API")
-    print(f"   User ID: {user_id}")
-    print(f"   Project ID: {project_id}")
     print(f"   Backend URL: {backend_url}")
+    
+    # Step 1: Register/Login to get JWT token
+    print(f"\n🔐 Step 1: Getting authentication token...")
+    
+    # Try to login first
+    login_response = requests.post(
+        f"{backend_url}/api/user/verify",
+        json={
+            "email": "agent_test@example.com",
+            "password": "test123"
+        }
+    )
+    
+    if login_response.status_code == 200:
+        auth_data = login_response.json()
+        token = auth_data.get('token')
+        user_id = auth_data.get('user', {}).get('_id')
+        print(f"   ✅ Logged in successfully")
+    else:
+        # Register new user
+        print(f"   Creating new user...")
+        register_response = requests.post(
+            f"{backend_url}/api/user/register",
+            json={
+                "email": "agent_test@example.com",
+                "username": "agent_tester",
+                "password": "test123",
+                "firstName": "Agent",
+                "lastName": "Tester"
+            }
+        )
+        
+        if register_response.status_code != 201:
+            print(f"   ❌ Registration failed: {register_response.text}")
+            return
+        
+        auth_data = register_response.json()
+        token = auth_data.get('token')
+        user_id = auth_data.get('user', {}).get('_id')
+        print(f"   ✅ Registered successfully")
+    
+    print(f"   User ID: {user_id}")
+    print(f"   Token: {token[:20]}...")
+    
+    # Step 2: Create a project
+    print(f"\n📁 Step 2: Creating project...")
+    project_id = await create_test_project(user_id)
     
     # Test query
     test_prompt = "I need team building activities in San Francisco for 15 people"
     
-    print(f"\n📝 Sending prompt: '{test_prompt}'")
+    print(f"\n📝 Step 3: Sending prompt: '{test_prompt}'")
     
-    # Make API request
+    # Make API request with auth token
     url = f"{backend_url}/api/project/{project_id}/chat"
     payload = {
         "prompt": test_prompt,
@@ -101,10 +142,15 @@ async def test_agent_via_api():
         "threadId": None
     }
     
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    
     print(f"\n🔄 Calling {url}")
     
     try:
-        response = requests.post(url, json=payload, timeout=60)
+        response = requests.post(url, json=payload, headers=headers, timeout=60)
         
         print(f"\n📊 Response Status: {response.status_code}")
         
