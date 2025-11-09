@@ -331,7 +331,7 @@ const Project = () => {
 
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    {messages.length === 0 ? (
+                    {messages.length === 0 && !isTyping ? (
                         <div className="flex items-center justify-center h-full">
                             <div className="text-center text-gray-400">
                                 <Sparkles className="w-12 h-12 mx-auto mb-3" />
@@ -341,50 +341,64 @@ const Project = () => {
                             </div>
                         </div>
                     ) : (
-                        messages.map((message, idx) => (
-                            <div
-                                key={idx}
-                                className={`flex ${
-                                    message.type === 'user'
-                                        ? 'justify-end'
-                                        : 'justify-start'
-                                }`}
-                            >
+                        <>
+                            {messages.map((message, idx) => (
                                 <div
-                                    className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                                    key={idx}
+                                    className={`flex ${
                                         message.type === 'user'
-                                            ? 'bg-indigo-600 text-white'
-                                            : message.isError
-                                            ? 'bg-red-50 text-red-900'
-                                            : 'bg-gray-100 text-gray-900'
+                                            ? 'justify-end'
+                                            : 'justify-start'
                                     }`}
                                 >
-                                    {message.isLoading ? (
-                                        <div className="flex items-center gap-2">
-                                            <Loader className="w-4 h-4 animate-spin" />
-                                            <span>Thinking...</span>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <p className="text-sm whitespace-pre-wrap">
-                                                {message.content}
-                                            </p>
-                                            {message.agentsUsed &&
-                                                message.agentsUsed.length > 0 && (
-                                                    <div className="mt-2 pt-2 border-t border-gray-200">
-                                                        <p className="text-xs text-gray-500">
-                                                            Agents used:{' '}
-                                                            {message.agentsUsed.join(
-                                                                ', '
-                                                            )}
-                                                        </p>
-                                                    </div>
-                                                )}
-                                        </>
-                                    )}
+                                    <div
+                                        className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                                            message.type === 'user'
+                                                ? 'bg-black text-white'
+                                                : message.isError
+                                                ? 'bg-red-50 text-red-900'
+                                                : 'bg-gray-100 text-gray-900'
+                                        }`}
+                                    >
+                                        {message.isLoading ? (
+                                            <div className="flex items-center gap-2">
+                                                <Loader className="w-4 h-4 animate-spin" />
+                                                <span>Thinking...</span>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <p className="text-sm whitespace-pre-wrap">
+                                                    {message.content}
+                                                </p>
+                                                {message.agentsUsed &&
+                                                    message.agentsUsed.length > 0 && (
+                                                        <div className="mt-2 pt-2 border-t border-gray-200">
+                                                            <p className="text-xs text-gray-500">
+                                                                Agents used:{' '}
+                                                                {message.agentsUsed.join(
+                                                                    ', '
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))
+                            ))}
+                            
+                            {/* Typing indicator */}
+                            {isTyping && typingText && (
+                                <div className="flex justify-start">
+                                    <div className="max-w-[80%] rounded-2xl px-4 py-3 bg-gray-100 text-gray-900">
+                                        <p className="text-sm whitespace-pre-wrap">
+                                            {typingText}
+                                            <span className="animate-pulse">▋</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
                     <div ref={messagesEndRef} />
                 </div>
