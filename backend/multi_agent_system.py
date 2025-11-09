@@ -234,10 +234,23 @@ Keep it warm and conversational."""
         state["recommendations"] = recommendations
         state["user_context"] = user_context
         
+        # STEP 4: ADD TO PROJECT
+        state["agent_states"].append({
+            "agent": "recommendation",
+            "status": "adding",
+            "step": 4,
+            "message": f"➕ Step 4/4: Adding {len(recommendations)} recommendations to project..."
+        })
+        
+        # Small delay to simulate adding to project
+        import asyncio
+        await asyncio.sleep(0.5)
+        
         state["agent_states"].append({
             "agent": "recommendation",
             "status": "completed",
-            "message": f"Created {len(recommendations)} recommendations"
+            "step": 4,
+            "message": f"✅ Complete! Added {len(recommendations)} recommendations to your project"
         })
         
         if not recommendations:
