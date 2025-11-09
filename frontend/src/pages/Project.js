@@ -492,71 +492,61 @@ const Project = () => {
                                 </p>
                             </div>
                         ) : (
-                        <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {recommendations.map((rec) => (
                                 <div
                                     key={rec.id}
-                                    className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+                                    className="group cursor-pointer"
+                                    onClick={() => navigate(`/project/${projectId}/recommendation/${rec.id || rec._id}`)}
                                 >
-                                    <div className="flex gap-4 p-4">
-                                        {/* Image */}
-                                        <div className="flex-shrink-0">
-                                            <img
-                                                src={
-                                                    rec.thumbnailUrl ||
-                                                    'https://via.placeholder.com/200x150'
-                                                }
-                                                alt={rec.title}
-                                                className="w-48 h-36 object-cover rounded-xl"
-                                            />
-                                        </div>
+                                    <div className="relative overflow-hidden rounded-2xl mb-3 aspect-[4/3]">
+                                        <img
+                                            src={rec.thumbnailUrl || 'https://via.placeholder.com/400x300'}
+                                            alt={rec.title}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        />
+                                    </div>
 
-                                        {/* Content */}
-                                        <div className="flex-1">
-                                            <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                    <div className="space-y-1">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <h3 className="font-semibold text-lg group-hover:underline">
                                                 {rec.title}
                                             </h3>
-                                            <p className="text-sm text-gray-600 mb-3">
-                                                {rec.shortDescription}
-                                            </p>
-
-                                            {/* Why recommended */}
-                                            {rec.reasonToRecommend && (
-                                                <div className="bg-indigo-50 rounded-lg p-3 mb-3">
-                                                    <div className="flex items-start gap-2">
-                                                        <Sparkles className="w-4 h-4 text-indigo-600 flex-shrink-0 mt-0.5" />
-                                                        <p className="text-sm text-indigo-900">
-                                                            {rec.reasonToRecommend}
-                                                        </p>
-                                                    </div>
+                                            {rec.score && (
+                                                <div className="flex items-center gap-1 flex-shrink-0">
+                                                    <CheckCircle className="w-4 h-4 text-green-600" />
+                                                    <span className="text-sm font-medium">
+                                                        {Math.round(rec.score * 100)}%
+                                                    </span>
                                                 </div>
                                             )}
+                                        </div>
 
-                                            {/* Details */}
-                                            <div className="flex items-center gap-4 text-sm text-gray-600">
-                                                {rec.duration && (
-                                                    <div className="flex items-center gap-1">
-                                                        <Calendar className="w-4 h-4" />
-                                                        <span>
-                                                            {Math.round(
-                                                                rec.duration / 60
-                                                            )}{' '}
-                                                            hours
-                                                        </span>
-                                                    </div>
-                                                )}
-                                                {rec.score && (
-                                                    <div className="flex items-center gap-1">
-                                                        <CheckCircle className="w-4 h-4 text-green-600" />
-                                                        <span>
-                                                            {Math.round(
-                                                                rec.score * 100
-                                                            )}
-                                                            % match
-                                                        </span>
-                                                    </div>
-                                                )}
+                                        <p className="text-gray-600 text-sm line-clamp-2">
+                                            {rec.shortDescription}
+                                        </p>
+
+                                        {/* Why recommended */}
+                                        {rec.reasonToRecommend && (
+                                            <div className="bg-indigo-50 rounded-lg px-2 py-1.5 mt-2">
+                                                <div className="flex items-start gap-1.5">
+                                                    <Sparkles className="w-3.5 h-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
+                                                    <p className="text-xs text-indigo-900 line-clamp-2">
+                                                        {rec.reasonToRecommend}
+                                                    </p>
+                                                </div>
                                             </div>
+                                        )}
+
+                                        <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
+                                            {rec.duration && (
+                                                <div className="flex items-center gap-1">
+                                                    <Calendar className="w-4 h-4" />
+                                                    <span>
+                                                        {Math.round(rec.duration / 60)}h
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
