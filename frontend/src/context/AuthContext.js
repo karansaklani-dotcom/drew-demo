@@ -125,8 +125,12 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error("Logout error:", error);
         } finally {
+            // Clear token from localStorage
+            clearAuthToken();
             // Clear the user from cache
             queryClient.setQueryData(endpoints.user.me.getKeys(), null);
+            // Clear all queries
+            queryClient.clear();
         }
     };
 
