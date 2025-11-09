@@ -200,10 +200,34 @@ const EventDiscovery = () => {
                     <div className="bg-white rounded-2xl shadow-2xl p-6 w-6xl max-w-full mx-auto border border-gray-100">
                         <div className="mb-4">
                             <Input
-                                placeholder="Ask Drew to create an event..."
+                                placeholder="Ask Drew to find activities... (e.g., 'Find team building for 20 people in SF')"
                                 className="h-14 text-base border-0 shadow-none focus-visible:ring-0 px-4"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyPress={async (e) => {
+                                    if (e.key === 'Enter' && searchQuery.trim() && !isCreatingProject) {
+                                        e.preventDefault();
+                                        setIsCreatingProject(true);
+                                        try {
+                                            const project = await api('project', {
+                                                method: 'POST',
+                                                data: {
+                                                    name: 'New Project',
+                                                    description: searchQuery.substring(0, 100),
+                                                    occasionIds: [],
+                                                },
+                                            });
+                                            navigate(`/project/${project.id}`, {
+                                                state: { initialPrompt: searchQuery }
+                                            });
+                                        } catch (error) {
+                                            console.error('Error:', error);
+                                            alert('Failed to create project');
+                                        } finally {
+                                            setIsCreatingProject(false);
+                                        }
+                                    }
+                                }}
                             />
                         </div>
 
@@ -252,8 +276,36 @@ const EventDiscovery = () => {
                                 <Button
                                     size="icon"
                                     className="rounded-full h-12 w-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                                    disabled={isCreatingProject || !searchQuery.trim()}
+                                    onClick={async () => {
+                                        if (searchQuery.trim() && !isCreatingProject) {
+                                            setIsCreatingProject(true);
+                                            try {
+                                                const project = await api('project', {
+                                                    method: 'POST',
+                                                    data: {
+                                                        name: 'New Project',
+                                                        description: searchQuery.substring(0, 100),
+                                                        occasionIds: [],
+                                                    },
+                                                });
+                                                navigate(`/project/${project.id}`, {
+                                                    state: { initialPrompt: searchQuery }
+                                                });
+                                            } catch (error) {
+                                                console.error('Error:', error);
+                                                alert('Failed to create project');
+                                            } finally {
+                                                setIsCreatingProject(false);
+                                            }
+                                        }
+                                    }}
                                 >
-                                    <ArrowUp className="h-5 w-5" />
+                                    {isCreatingProject ? (
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                    ) : (
+                                        <ArrowUp className="h-5 w-5" />
+                                    )}
                                 </Button>
                             </div>
                         </div>
