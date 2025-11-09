@@ -985,7 +985,8 @@ async def project_chat_stream(
                         "description": project_desc
                     }}
                 )
-                yield f"data: {json.dumps({{'type': 'project_update', 'name': project_name, 'description': project_desc}})}\n\n"
+                project_update_data = {'type': 'project_update', 'name': project_name, 'description': project_desc}
+                yield f"data: {json.dumps(project_update_data)}\n\n"
             
             # Stream response message character by character
             message = response.get('message', '')
