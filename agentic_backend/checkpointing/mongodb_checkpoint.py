@@ -105,6 +105,12 @@ class MongoDBCheckpointer:
     
     async def close(self):
         """Close the MongoDB connection."""
+        if self._context and self._checkpointer:
+            try:
+                await self._context.__aexit__(None, None, None)
+            except Exception as e:
+                logger.error(f"Error closing context: {e}")
+        
         if self._client:
             self._client.close()
             logger.info("MongoDB checkpointer connection closed")
