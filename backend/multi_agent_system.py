@@ -125,9 +125,15 @@ CONTEXT: <json>
         search_query = state["user_prompt"]
         filters = {}
         user_context = {}
+        project_name = "New Project"
+        project_description = state["user_prompt"][:100]
         
         for line in content.split("\n"):
-            if line.startswith("SEARCH_QUERY:"):
+            if line.startswith("PROJECT_NAME:"):
+                project_name = line.split("PROJECT_NAME:")[1].strip()
+            elif line.startswith("PROJECT_DESCRIPTION:"):
+                project_description = line.split("PROJECT_DESCRIPTION:")[1].strip()
+            elif line.startswith("SEARCH_QUERY:"):
                 search_query = line.split("SEARCH_QUERY:")[1].strip()
             elif line.startswith("FILTERS:"):
                 try:
@@ -141,6 +147,10 @@ CONTEXT: <json>
                     user_context = json.loads(line.split("CONTEXT:")[1].strip())
                 except:
                     pass
+        
+        # Store project details in metadata for later update
+        state["metadata"]["suggested_project_name"] = project_name
+        state["metadata"]["suggested_project_description"] = project_description
         
         # Search activities
         logger.info(f"Searching with query: {search_query}, filters: {filters}")
