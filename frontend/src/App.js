@@ -12,6 +12,7 @@ import EventDetail from "./pages/EventDetail";
 import Profile from "./pages/Profile";
 import OrganizationSettings from "./pages/OrganizationSettings";
 import Project from "./pages/Project";
+import RecommendationDetail from "./pages/RecommendationDetail";
 
 // Create a query client
 const queryClient = new QueryClient({
