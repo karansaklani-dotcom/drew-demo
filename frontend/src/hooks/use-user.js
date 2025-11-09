@@ -28,9 +28,13 @@ export function useUserRegister() {
 
     return useApiMutation({
         mutationFn: (data) => endpoints.user.register.query(data),
-        onSuccess: (userData) => {
+        onSuccess: (response) => {
+            // Response contains { token, user }
+            // Token is already stored by api interceptor
             // Update the user/me cache with the new user
-            queryClient.setQueryData(endpoints.user.me.getKeys(), userData);
+            if (response.user) {
+                queryClient.setQueryData(endpoints.user.me.getKeys(), response.user);
+            }
         },
     });
 }
