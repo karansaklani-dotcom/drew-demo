@@ -199,15 +199,16 @@ Keep it warm and conversational."""
             state["agent_history"].append("recommendation")
             return state
         
-        # Reflect and create recommendations
+        # STEP 3: REFLECT
         state["agent_states"].append({
             "agent": "recommendation",
             "status": "reflecting",
-            "message": f"Analyzing {len(activities)} activities for best matches..."
+            "step": 3,
+            "message": f"🤔 Step 3/4: Reflecting on {len(activities)} activities..."
         })
         
         recommendations = []
-        for activity in activities[:3]:  # Top 3
+        for idx, activity in enumerate(activities[:3], 1):  # Top 3
             # Reflect
             reflection = await self.tools.reflect_and_transform(activity, user_context)
             
