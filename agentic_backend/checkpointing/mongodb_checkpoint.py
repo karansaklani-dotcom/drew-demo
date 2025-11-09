@@ -23,11 +23,15 @@ class MongoDBCheckpointer:
         if self._checkpointer is None:
             try:
                 logger.info(f"Initializing MongoDB checkpointer: {self.mongo_url}/{self.db_name}")
-                self._client = AsyncIOMotorClient(self.mongo_url)
-                db = self._client[self.db_name]
                 
-                # Create AsyncMongoDBSaver
-                self._checkpointer = AsyncMongoDBSaver(db)
+                # Create AsyncMongoDBSaver from connection string
+                self._checkpointer = await AsyncMongoDBSaver.from_conn_string(
+                    self.mongo_url,
+                    db_name=self.db_name
+                )
+                
+                # Store client reference for later use
+                self._client = self._checkpointer.client
                 
                 # Setup indexes for better performance
                 await self._setup_indexes()
