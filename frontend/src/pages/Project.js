@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../utils/api';
+import { Button } from '../components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '../components/ui/dropdown-menu';
 import {
     ArrowLeft,
     Send,
@@ -10,7 +17,14 @@ import {
     DollarSign,
     Users,
     MapPin,
-    CheckCircle
+    CheckCircle,
+    Globe,
+    Settings,
+    User as UserIcon,
+    Building,
+    Brain,
+    Search as SearchIcon,
+    Lightbulb
 } from 'lucide-react';
 
 const Project = () => {
