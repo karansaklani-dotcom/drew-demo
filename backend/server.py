@@ -15,10 +15,13 @@ from models import (
     ActivityCreate, Activity, ActivityUpdate,
     OnboardingData, Offering, Occasion
 )
+from models_extended import AgentPromptRequest, AgentResponse
 from auth import (
     hash_password, verify_password, create_access_token, 
     get_current_user
 )
+from semantic_search import SemanticSearchService
+from recommendation_agent import RecommendationAgent
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
