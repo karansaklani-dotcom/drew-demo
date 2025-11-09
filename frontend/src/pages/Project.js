@@ -290,11 +290,6 @@ const Project = () => {
                         <p className="text-sm text-gray-500">
                             {project.description}
                         </p>
-                        {agentState && (
-                            <div className="mt-3 p-2 bg-indigo-50 rounded-lg">
-                                {getAgentStateDisplay()}
-                            </div>
-                        )}
                     </div>
 
                 {/* Messages */}
