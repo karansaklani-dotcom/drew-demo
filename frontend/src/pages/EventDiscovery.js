@@ -24,7 +24,10 @@ import {
     Building,
     Loader2,
     ChevronDown,
+    Sparkles,
+    Send,
 } from "lucide-react";
+import { api } from "../utils/api";
 
 const EventDiscovery = () => {
     const [searchQuery, setSearchQuery] = useState("");
