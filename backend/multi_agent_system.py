@@ -62,7 +62,7 @@ class RecommendationAgent:
     
     async def run(self, state: SupervisorState) -> SupervisorState:
         """Execute recommendation agent with explicit steps: Plan → Search → Reflect → Add"""
-        logger.info("🎯 Running Recommendation Agent")
+        logger.info(f"🎯 Running Recommendation Agent (agent_history: {state.get('agent_history', [])})")
         
         # STEP 1: PLAN
         # STEP 1: PLAN
