@@ -381,11 +381,11 @@ const Project = () => {
                             )}
                         </button>
                     </div>
+                    </div>
                 </div>
-            </div>
 
-            {/* Right Panel - Recommendations */}
-            <div className="flex-1 overflow-y-auto p-6">
+                {/* Right Panel - Recommendations */}
+                <div className="flex-1 overflow-y-auto p-6">
                 <div className="max-w-4xl mx-auto">
                     <h2 className="text-2xl font-bold text-gray-900 mb-6">
                         Recommendations
