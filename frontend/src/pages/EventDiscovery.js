@@ -352,6 +352,117 @@ const EventDiscovery = () => {
                     </div>
                 )}
             </section>
+
+            {/* Floating Chat Button */}
+            <div className="fixed bottom-6 right-6 z-50">
+                {showChatInput ? (
+                    <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 w-96 animate-in slide-in-from-bottom">
+                        <div className="flex items-center gap-2 mb-3">
+                            <Sparkles className="w-5 h-5 text-indigo-600" />
+                            <h3 className="font-semibold text-gray-900">
+                                Ask Drew AI
+                            </h3>
+                        </div>
+                        <textarea
+                            value={chatPrompt}
+                            onChange={(e) => setChatPrompt(e.target.value)}
+                            placeholder="Find team building activities for 20 people in SF..."
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none mb-3"
+                            rows="3"
+                            autoFocus
+                            onKeyPress={async (e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    if (chatPrompt.trim() && !isCreatingProject) {
+                                        setIsCreatingProject(true);
+                                        try {
+                                            // Create project
+                                            const project = await api('project', {
+                                                method: 'POST',
+                                                data: {
+                                                    name: 'New Project',
+                                                    description: chatPrompt.substring(0, 100),
+                                                    occasionIds: [],
+                                                },
+                                            });
+
+                                            // Navigate to project with prompt
+                                            navigate(`/project/${project.id}?prompt=${encodeURIComponent(chatPrompt)}`);
+                                        } catch (error) {
+                                            console.error('Error creating project:', error);
+                                            alert('Failed to create project. Please try again.');
+                                        } finally {
+                                            setIsCreatingProject(false);
+                                        }
+                                    }
+                                }
+                            }}
+                        />
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    setShowChatInput(false);
+                                    setChatPrompt('');
+                                }}
+                                className="flex-1 px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+                                disabled={isCreatingProject}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    if (chatPrompt.trim() && !isCreatingProject) {
+                                        setIsCreatingProject(true);
+                                        try {
+                                            // Create project
+                                            const project = await api('project', {
+                                                method: 'POST',
+                                                data: {
+                                                    name: 'New Project',
+                                                    description: chatPrompt.substring(0, 100),
+                                                    occasionIds: [],
+                                                },
+                                            });
+
+                                            // Navigate to project with prompt in state
+                                            navigate(`/project/${project.id}`, {
+                                                state: { initialPrompt: chatPrompt }
+                                            });
+                                        } catch (error) {
+                                            console.error('Error creating project:', error);
+                                            alert('Failed to create project. Please try again.');
+                                        } finally {
+                                            setIsCreatingProject(false);
+                                        }
+                                    }
+                                }}
+                                disabled={!chatPrompt.trim() || isCreatingProject}
+                                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                            >
+                                {isCreatingProject ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Creating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="w-4 h-4" />
+                                        Send
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <button
+                        onClick={() => setShowChatInput(true)}
+                        className="bg-indigo-600 text-white rounded-full p-4 shadow-2xl hover:bg-indigo-700 transition-all hover:scale-110 flex items-center gap-2"
+                    >
+                        <Sparkles className="w-6 h-6" />
+                        <span className="pr-2 font-medium">Ask Drew AI</span>
+                    </button>
+                )}
+            </div>
         </div>
     );
 };
