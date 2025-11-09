@@ -182,19 +182,29 @@ Available tools:
                 
                 # Execute tool
                 try:
-                    tool_result = await self.tool_executor.ainvoke(tool_call)
-                    
-                    # Add tool result to messages
-                    tool_message = ToolMessage(
-                        content=str(tool_result),
-                        tool_call_id=tool_call['id']
-                    )
-                    messages.append(tool_message)
-                    
-                    logger.info(f"Tool result: {str(tool_result)[:200]}...")
+                    tool = self.tool_map.get(tool_name)
+                    if tool:
+                        # Call the tool function
+                        tool_result = await tool.ainvoke(tool_args)
+                        
+                        # Add tool result to messages
+                        tool_message = ToolMessage(
+                            content=str(tool_result),
+                            tool_call_id=tool_call['id']
+                        )
+                        messages.append(tool_message)
+                        
+                        logger.info(f"Tool result: {str(tool_result)[:200]}...")
+                    else:
+                        logger.error(f"Tool {tool_name} not found")
+                        error_message = ToolMessage(
+                            content=f"Tool {tool_name} not found",
+                            tool_call_id=tool_call['id']
+                        )
+                        messages.append(error_message)
                     
                 except Exception as e:
-                    logger.error(f"Tool execution error: {e}")
+                    logger.error(f"Tool execution error: {e}", exc_info=True)
                     error_message = ToolMessage(
                         content=f"Error executing {tool_name}: {str(e)}",
                         tool_call_id=tool_call['id']
