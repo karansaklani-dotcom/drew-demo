@@ -12,7 +12,6 @@ from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, ToolMessage
 from langchain_openai import ChatOpenAI
-from langchain.tools.render import render_text_description
 
 from agent_tools import AgentTools
 from recommendation_tools import (
