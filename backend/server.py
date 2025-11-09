@@ -1001,7 +1001,8 @@ async def project_chat_stream(
                 logger.warning("No message to stream - response.get('message') is empty")
             
             # Send completion
-            yield f"data: {json.dumps({{'type': 'complete', 'recommendationCount': len(response.get('recommendations', []))}})}\n\n"
+            completion_data = {'type': 'complete', 'recommendationCount': len(response.get('recommendations', []))}
+            yield f"data: {json.dumps(completion_data)}\n\n"
             logger.info("Streaming complete")
             
         except Exception as e:
