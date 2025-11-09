@@ -175,15 +175,18 @@
 
   - task: "Occasion endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented GET /occasion with pagination/search, GET /occasion/{id}"
+      - working: true
+        agent: "testing"
+        comment: "✅ Occasion endpoints working: GET /api/occasion (200) with proper pagination format {rows, count, total, limit, offset}. Authentication required and working."
 
   - task: "Offering endpoints"
     implemented: true
