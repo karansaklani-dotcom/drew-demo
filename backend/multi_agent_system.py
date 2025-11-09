@@ -68,14 +68,15 @@ class RecommendationAgent:
         state["agent_states"].append({
             "agent": "recommendation",
             "status": "started",
-            "message": "Searching for activities..."
+            "message": "Analyzing your request..."
         })
         
         system_prompt = """You are a recommendation specialist. Your job is to:
-1. Understand user requirements from their prompt and conversation history
-2. Search for relevant activities using semantic search
-3. Reflect on whether activities fit user needs
-4. Create recommendations for the project
+1. Generate a concise project name and description from user prompt
+2. Understand user requirements from their prompt and conversation history
+3. Search for relevant activities using semantic search
+4. Reflect on whether activities fit user needs
+5. Create recommendations for the project
 
 Extract key information:
 - Group size
