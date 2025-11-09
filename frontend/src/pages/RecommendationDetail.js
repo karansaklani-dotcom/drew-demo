@@ -197,9 +197,22 @@ const RecommendationDetail = () => {
                             {/* Description */}
                             <div className="space-y-3">
                                 <h2 className="text-xl font-bold text-gray-900">About this activity</h2>
-                                <p className="text-gray-700 leading-relaxed">
-                                    {recommendation.longDescription || recommendation.shortDescription}
-                                </p>
+                                {recommendation.customizedDescription ? (
+                                    <>
+                                        <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-lg">
+                                            <p className="text-indigo-900 leading-relaxed font-medium">
+                                                {recommendation.customizedDescription}
+                                            </p>
+                                        </div>
+                                        <p className="text-gray-700 leading-relaxed text-sm">
+                                            <span className="font-semibold">Original description:</span> {recommendation.longDescription || recommendation.shortDescription}
+                                        </p>
+                                    </>
+                                ) : (
+                                    <p className="text-gray-700 leading-relaxed">
+                                        {recommendation.longDescription || recommendation.shortDescription}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>
