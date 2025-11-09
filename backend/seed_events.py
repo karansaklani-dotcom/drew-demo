@@ -258,12 +258,16 @@ async def seed_events():
     client = AsyncIOMotorClient(mongo_url)
     db = client[os.environ.get('DB_NAME', 'drew_events')]
     
-    # Clear existing events
+    # Clear existing events and activities
     await db.events.delete_many({})
+    await db.activities.delete_many({})
     
-    # Insert mock events
-    result = await db.events.insert_many(mock_events)
-    print(f"Inserted {len(result.inserted_ids)} events")
+    # Insert mock events into both collections for backward compatibility
+    result_events = await db.events.insert_many(mock_events)
+    print(f"Inserted {len(result_events.inserted_ids)} events")
+    
+    result_activities = await db.activities.insert_many(mock_events)
+    print(f"Inserted {len(result_activities.inserted_ids)} activities")
     
     client.close()
 
