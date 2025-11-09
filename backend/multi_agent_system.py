@@ -139,6 +139,13 @@ CONTEXT: <json>
         
         # Search activities
         logger.info(f"Searching with query: {search_query}, filters: {filters}")
+        
+        state["agent_states"].append({
+            "agent": "recommendation",
+            "status": "searching",
+            "message": f"Searching activities with: {search_query}"
+        })
+        
         activities = await self.tools.search_activities(
             query=search_query,
             filters=filters if filters else None,
