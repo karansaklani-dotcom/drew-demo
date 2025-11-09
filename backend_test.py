@@ -540,7 +540,7 @@ class DrewAPITester:
         print("\n=== Testing Additional Auth Endpoints ===")
         
         # Test magic link (mock)
-        magic_data = {"email": "sarah.johnson@example.com"}
+        magic_data = {"email": self.test_email}
         success, response, status = self.make_request("POST", "/auth/magic-link", magic_data)
         
         if success and status == 200:
