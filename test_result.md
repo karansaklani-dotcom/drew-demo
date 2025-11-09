@@ -304,45 +304,68 @@
 ## agent_communication:
   - agent: "main"
     message: |
-      Implemented complete LangGraph-based agentic backend with following features:
+      Implemented comprehensive backend APIs according to API requirements document:
       
-      ✅ Core Features Implemented:
-      1. MongoDB Checkpointing - AsyncMongoDBSaver integration with state persistence
-      2. Thread Management - Comprehensive message storage with embeddings
-      3. Semantic Search - OpenAI embeddings for message search
-      4. Automatic Summarization - Token-based summarization with context building
-      5. Base Agent - LangGraph workflow with checkpointing
-      6. Event Discovery Agent - Specialized agent with event tools
-      7. Sub-Agent System - Hierarchical agents with subthreads and subcheckpointing
-      8. Event Tools - search_events, get_event_details, filter, recommendations
-      9. API Client - Communication with main backend
-      10. API Gateway - Server-to-server with cookie passthrough
-      11. FastAPI Server - Complete REST API with streaming support
+      ✅ BACKEND ENDPOINTS IMPLEMENTED:
       
-      📁 Structure:
-      - agentic_backend/checkpointing/ - State persistence
-      - agentic_backend/threads/ - Thread and message management
-      - agentic_backend/agents/ - Base, Event, and Sub-agents
-      - agentic_backend/tools/ - Agent tools
-      - agentic_backend/api/ - Client and gateway
-      - agentic_backend/server.py - FastAPI server
-      - agentic_backend/examples/ - Demo scripts
+      🔐 Authentication (JWT-based):
+      - POST /api/user/register - Register new user with JWT token
+      - POST /api/user/verify - Login/verify user with JWT token
+      - GET /api/user/me - Get current authenticated user
+      - PUT /api/user/{id} - Update user profile with authorization
+      - POST /api/auth/magic-link - Mock magic link (ready for implementation)
+      - GET /api/auth/google/redirect - Mock Google OAuth (ready for implementation)
+      - POST /api/auth/logout - Logout endpoint
       
-      🔧 Configuration:
-      - Uses Emergent LLM key for OpenAI/Anthropic/Google
-      - MongoDB for checkpointing and threads
-      - OpenAI embeddings for semantic search
-      - Runs on port 8002
+      🏢 Organization Management:
+      - POST /api/organization - Create organization
+      - GET /api/organization/{id} - Get organization by ID
+      - PUT /api/organization/{id} - Update organization
+      - GET /api/organization - List organizations with pagination and search
       
-      📚 Documentation:
-      - Comprehensive README with architecture details
-      - API documentation with examples
-      - Example scripts for testing
+      🎯 Activity/Event Management:
+      - GET /api/activity - List activities with filters (location, category, search)
+      - GET /api/activity/{id} - Get activity with expand parameter support
+      - POST /api/activity - Create new activity
+      - PUT /api/activity/{id} - Update activity
       
-      Ready for backend testing to verify:
-      - Server startup and health check
-      - Thread creation and message management
-      - Agent invocation and tool execution
-      - Sub-agent functionality
-      - API gateway communication
-      - Semantic search capabilities
+      🎉 Occasion & Offering:
+      - GET /api/occasion - List occasions with pagination
+      - GET /api/occasion/{id} - Get occasion by ID
+      - GET /api/offering - List offerings with pagination
+      - GET /api/offering/{id} - Get offering by ID
+      
+      👤 Onboarding:
+      - POST /api/onboarding - Complete onboarding with optional organization creation
+      
+      🔄 Backward Compatibility:
+      - GET /api/events - Legacy endpoint (redirects to activities)
+      - GET /api/events/{id} - Legacy endpoint (redirects to activity)
+      
+      ✅ FRONTEND JWT INTEGRATION:
+      - Updated API client to use Authorization headers with JWT
+      - Token storage in localStorage
+      - Automatic token attachment to requests
+      - Token clearing on logout
+      - Updated AuthContext for JWT flow
+      - Updated user hooks to handle {token, user} response format
+      
+      📦 Data Models Updated:
+      - Activity (renamed from Event with all required fields)
+      - Organization with CRUD support
+      - User with update model
+      - Occasion and Offering models
+      - PreRequisite, HostInfo, ItineraryItem models
+      
+      💾 Database:
+      - Seeded 6 mock events/activities
+      - Ready for testing
+      
+      🧪 Ready for Testing:
+      - User registration and login flow
+      - JWT token authentication
+      - Organization CRUD
+      - Activity listing with filters
+      - Activity detail with expand parameter
+      - Onboarding flow with organization creation
+      - Frontend-backend integration
