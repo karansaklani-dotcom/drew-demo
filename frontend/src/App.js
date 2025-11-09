@@ -10,6 +10,7 @@ import Onboarding from "./pages/Onboarding";
 import EventDiscovery from "./pages/EventDiscovery";
 import EventDetail from "./pages/EventDetail";
 import Profile from "./pages/Profile";
+import OrganizationSettings from "./pages/OrganizationSettings";
 
 // Create a query client
 const queryClient = new QueryClient({
