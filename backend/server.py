@@ -44,6 +44,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Initialize AI services
+openai_api_key = os.environ.get('OPENAI_API_KEY')
+semantic_search_service = None
+recommendation_agent = None
+
+if openai_api_key:
+    try:
+        semantic_search_service = SemanticSearchService(
+            openai_api_key=openai_api_key,
+            mongo_client=client,
+            db_name=os.environ.get('DB_NAME', 'drew_events')
+        )
+        recommendation_agent = RecommendationAgent(
+            openai_api_key=openai_api_key,
+            semantic_search_service=semantic_search_service
+        )
+        logger.info("AI services initialized successfully")
+    except Exception as e:
+        logger.warning(f"Could not initialize AI services: {e}")
+else:
+    logger.warning("OPENAI_API_KEY not set, AI features will be disabled")
+
 # Helper function to convert ObjectId to string
 def serialize_doc(doc: Dict) -> Dict:
     """Convert MongoDB ObjectId fields to strings"""
