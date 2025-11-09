@@ -246,17 +246,41 @@
         comment: "Updated seed script to populate both events and activities collections with 6 mock events"
 
 ## frontend:
-  - task: "No frontend changes required"
+  - task: "API client JWT authentication"
     implemented: true
     working: "NA"
-    file: "N/A"
+    file: "frontend/src/utils/api.js"
     stuck_count: 0
-    priority: "low"
-    needs_retesting: false
+    priority: "high"
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Agentic backend is a separate service, no frontend changes needed"
+        comment: "Updated API client to use JWT tokens with Authorization header, localStorage token management, automatic token storage on login"
+
+  - task: "AuthContext JWT integration"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/context/AuthContext.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated AuthContext to use JWT tokens, clear tokens on logout, conditional user fetching based on token presence"
+
+  - task: "User hooks JWT integration"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/hooks/use-user.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated user hooks to handle JWT response format {token, user}, added options parameter to useUserMe"
 
 ## metadata:
   created_by: "main_agent"
