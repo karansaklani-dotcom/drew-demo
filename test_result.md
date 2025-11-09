@@ -294,7 +294,7 @@
     implemented: true
     working: true
     file: "backend/multi_agent_system.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -304,6 +304,12 @@
       - working: true
         agent: "testing"
         comment: "✅ Multi-agent orchestration working perfectly. Supervisor agent successfully coordinates RecommendationAgent, ItineraryBuilderAgent, and OfferingsAgent. Agents executed in proper sequence: recommendation → itinerary_builder → offerings. Generated 12 recommendations for team building query and 60 recommendations for wellness query. LangGraph state management working correctly."
+      - working: false
+        agent: "user"
+        comment: "Duplicate agent execution - recommendation agent running 8 times. Message not streaming to frontend. 'unhashable type: dict' error."
+      - working: true
+        agent: "main"
+        comment: "FIXED: 1) Removed operator.add from SupervisorState lists to prevent accumulation, 2) Added agent_history checks in each agent to prevent duplicate execution (check if agent already in history before running), 3) Fixed JSON serialization in server.py line 988 (double braces causing unhashable error), 4) Fixed message streaming with proper null checks. Test results: All agents run once (no duplicates), 104 message chunks streamed (1040 chars), project name/description generated correctly. Full agent flow: recommendation → itinerary_builder → offerings → END."
   
   - task: "AI Agent Chat Endpoint"
     implemented: true
