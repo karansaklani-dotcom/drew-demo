@@ -919,6 +919,55 @@ async def delete_recommendation(
 # AI AGENT ENDPOINTS
 # =============================================================================
 
+@api_router.post("/project/{project_id}/chat")
+async def project_chat(
+    project_id: str,
+    request: Dict[str, Any],
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Chat with AI agent for a specific project
+    Creates recommendations, builds itineraries, manages offerings
+    """
+    if not supervisor_agent:
+        raise HTTPException(
+            status_code=503,
+            detail="AI service is not available. Please configure OPENAI_API_KEY."
+        )
+    
+    try:
+        # Verify project belongs to user
+        project = await db.projects.find_one({
+            "_id": ObjectId(project_id) if ObjectId.is_valid(project_id) else None,
+            "userId": current_user['user_id']
+        })
+        
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        prompt = request.get('prompt', request.get('message', ''))
+        if not prompt:
+            raise HTTPException(status_code=400, detail="Prompt is required")
+        
+        # Run supervisor agent
+        response = await supervisor_agent.run(
+            prompt=prompt,
+            user_id=current_user['user_id'],
+            project_id=project_id,
+            thread_id=project.get('threadId')
+        )
+        
+        return response
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in project chat: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error processing chat request: {str(e)}"
+        )
+
 @api_router.post("/agent/recommend")
 async def get_recommendations(
     request: AgentPromptRequest,
@@ -926,7 +975,7 @@ async def get_recommendations(
 ):
     """
     Get AI-powered activity recommendations based on user prompt
-    Requires authentication
+    DEPRECATED: Use /project/{project_id}/chat instead
     """
     if not recommendation_agent:
         raise HTTPException(
