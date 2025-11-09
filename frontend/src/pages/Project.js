@@ -467,8 +467,8 @@ const Project = () => {
                 <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
                     <div className="max-w-5xl mx-auto">
                         {/* Agent State Display - Prominent */}
-                        {agentState && (
-                            <div className="mb-6 bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+                        {(agentState || agentStates.length > 0) && (
+                            <div className="mb-6 bg-white rounded-2xl shadow-lg border border-indigo-200 p-6">
                                 <div className="flex items-center gap-4">
                                     <div className="flex-shrink-0">
                                         <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
@@ -476,12 +476,10 @@ const Project = () => {
                                         </div>
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
                                             Drew AI is working...
                                         </h3>
-                                        <div className="space-y-2">
-                                            {getAgentStateDisplay()}
-                                        </div>
+                                        {getAgentStateDisplay()}
                                     </div>
                                     <Loader className="w-8 h-8 text-indigo-600 animate-spin" />
                                 </div>
