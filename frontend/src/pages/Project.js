@@ -173,6 +173,13 @@ const Project = () => {
                         if (data.type === 'agent_state') {
                             // Update agent state display
                             setAgentState(data.state.message);
+                            // Also add to history
+                            setAgentStates(prev => [...prev, {
+                                agent: data.state.agent,
+                                status: data.state.status,
+                                message: data.state.message,
+                                timestamp: new Date()
+                            }]);
                         } else if (data.type === 'project_update') {
                             // Update project name
                             setProject(prev => ({
