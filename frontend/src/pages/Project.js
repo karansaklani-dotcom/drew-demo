@@ -213,20 +213,11 @@ const Project = () => {
     const getAgentStateDisplay = () => {
         if (!agentState) return null;
         
-        const states = {
-            searching: { icon: SearchIcon, text: 'Searching activities...', color: 'text-blue-600' },
-            reflecting: { icon: Lightbulb, text: 'Analyzing best matches...', color: 'text-yellow-600' },
-            customizing: { icon: Brain, text: 'Personalizing recommendations...', color: 'text-purple-600' }
-        };
-        
-        const state = states[agentState];
-        if (!state) return null;
-        
-        const Icon = state.icon;
+        // agentState now contains the actual message from backend
         return (
             <div className="flex items-center gap-2 text-sm">
-                <Icon className={`w-4 h-4 ${state.color} animate-pulse`} />
-                <span className="text-gray-600">{state.text}</span>
+                <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
+                <span className="text-gray-700 font-medium">{agentState}</span>
             </div>
         );
     };
