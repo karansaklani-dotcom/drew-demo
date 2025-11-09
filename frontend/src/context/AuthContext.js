@@ -28,15 +28,20 @@ export const AuthProvider = ({ children }) => {
     const onboardingMutation = useOnboardingComplete();
     const queryClient = useQueryClient();
 
-    const register = async (email, password) => {
+    const register = async (email, password, username = email.split("@")[0]) => {
         try {
-            const userData = await registerMutation.mutateAsync({
+            const response = await registerMutation.mutateAsync({
                 email,
                 password,
+                username,
             });
-            return { success: true, user: userData };
+            // Token is automatically stored by api interceptor
+            // Invalidate user query to fetch fresh data
+            queryClient.invalidateQueries(endpoints.user.me.getKeys());
+            return { success: true, user: response.user };
         } catch (error) {
             const message =
+                error.response?.data?.detail ||
                 error.response?.data?.message ||
                 error.message ||
                 "Registration failed";
@@ -46,13 +51,17 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const userData = await verifyMutation.mutateAsync({
+            const response = await verifyMutation.mutateAsync({
                 email,
                 password,
             });
-            return { success: true, user: userData };
+            // Token is automatically stored by api interceptor
+            // Invalidate user query to fetch fresh data
+            queryClient.invalidateQueries(endpoints.user.me.getKeys());
+            return { success: true, user: response.user };
         } catch (error) {
             const message =
+                error.response?.data?.detail ||
                 error.response?.data?.message ||
                 error.message ||
                 "Login failed";
