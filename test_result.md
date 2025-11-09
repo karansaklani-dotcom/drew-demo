@@ -113,137 +113,137 @@
   - Onboarding completion
 
 ## backend:
-  - task: "MongoDB checkpointing setup with LangGraph"
+  - task: "User authentication endpoints with JWT"
     implemented: true
     working: "NA"
-    file: "agentic_backend/checkpointing/mongodb_checkpoint.py"
+    file: "backend/server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Implemented AsyncMongoDBSaver integration with LangGraph, checkpoint history, cleanup functionality, and performance indexes"
+        comment: "Implemented POST /user/register, POST /user/verify, GET /user/me with JWT token authentication"
 
-  - task: "Thread management system with messages and embeddings"
+  - task: "User update endpoint"
     implemented: true
     working: "NA"
-    file: "agentic_backend/threads/manager.py"
+    file: "backend/server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Implemented ThreadManager with message storage, embedding generation, semantic search, and context building"
+        comment: "Implemented PUT /user/{id} endpoint for updating user profile with authorization check"
 
-  - task: "Thread summarization with token tracking"
+  - task: "Organization CRUD endpoints"
     implemented: true
     working: "NA"
-    file: "agentic_backend/threads/summarizer.py"
+    file: "backend/server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Implemented ThreadSummarizer with token counting, automatic summarization triggers, and context building from summaries"
+        comment: "Implemented POST /organization, GET /organization/{id}, PUT /organization/{id}, GET /organization with pagination and search"
 
-  - task: "Base agent with LangGraph and checkpointing"
+  - task: "Activity/Event endpoints with filters"
     implemented: true
     working: "NA"
-    file: "agentic_backend/agents/base_agent.py"
+    file: "backend/server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Implemented BaseAgent with LangGraph workflow, state management, tool integration, and checkpointing support"
+        comment: "Implemented GET /activity with location/category/search filters, GET /activity/{id} with expand parameter, POST /activity, PUT /activity/{id}"
 
-  - task: "Event discovery agent with tools"
+  - task: "Occasion endpoints"
     implemented: true
     working: "NA"
-    file: "agentic_backend/agents/event_agent.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Implemented EventDiscoveryAgent with event search, filtering, and recommendation capabilities"
-
-  - task: "Sub-agent support with subthreads and subcheckpointing"
-    implemented: true
-    working: "NA"
-    file: "agentic_backend/agents/sub_agent.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Implemented SubAgent with subthread creation, independent checkpointing, and context merging to parent thread"
-
-  - task: "Event tools for agent capabilities"
-    implemented: true
-    working: "NA"
-    file: "agentic_backend/tools/event_tools.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Implemented event tools: search_events, get_event_details, filter_events_by_criteria, recommend_events_by_preferences"
-
-  - task: "API client for main backend communication"
-    implemented: true
-    working: "NA"
-    file: "agentic_backend/api/client.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Implemented MainBackendClient with event endpoints and user info retrieval"
-
-  - task: "API gateway with cookie passthrough"
-    implemented: true
-    working: "NA"
-    file: "agentic_backend/api/gateway.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Implemented APIGateway with server-to-server communication and cookie passthrough functionality"
-
-  - task: "FastAPI server with all endpoints"
-    implemented: true
-    working: "NA"
-    file: "agentic_backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Implemented comprehensive FastAPI server with thread management, agent invocation, sub-agents, gateway, and streaming endpoints"
-
-  - task: "Configuration management"
-    implemented: true
-    working: "NA"
-    file: "agentic_backend/config.py"
+    file: "backend/server.py"
     stuck_count: 0
     priority: "medium"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Implemented centralized configuration with environment variable support for all components"
+        comment: "Implemented GET /occasion with pagination/search, GET /occasion/{id}"
+
+  - task: "Offering endpoints"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented GET /offering with pagination/search, GET /offering/{id}"
+
+  - task: "Onboarding endpoint"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented POST /onboarding with organization creation support"
+
+  - task: "Auth logout endpoint"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented POST /auth/logout endpoint (JWT is stateless, mainly for frontend)"
+
+  - task: "Backward compatibility endpoints"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented GET /events and GET /events/{id} for backward compatibility with old code"
+
+  - task: "Data models for all entities"
+    implemented: true
+    working: "NA"
+    file: "backend/models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated models for Activity, Organization, User updates, Occasion, Offering with all required fields"
+
+  - task: "Database seeding"
+    implemented: true
+    working: "NA"
+    file: "backend/seed_events.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated seed script to populate both events and activities collections with 6 mock events"
 
 ## frontend:
   - task: "No frontend changes required"
