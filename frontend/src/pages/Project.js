@@ -283,7 +283,7 @@ const Project = () => {
                 {/* Left Panel - Chat */}
                 <div
                     ref={chatPanelRef}
-                    className="w-1/3 bg-white border-r border-gray-200 flex flex-col"
+                    className="w-1/4 bg-white border-r border-gray-200 flex flex-col"
                 >
                     {/* Project Info */}
                     <div className="p-4 border-b border-gray-200">
