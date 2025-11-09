@@ -180,7 +180,7 @@ class DrewAPITester:
                           f"Status: {status}, Response: {response.text if response else 'No response'}")
         
         # Test without token (should return 401 or 403)
-        success, response, status = self.make_request("GET", "/user/me", headers={})
+        success, response, status = self.make_request("GET", "/user/me", use_auth=False)
         if success and status in [401, 403]:
             self.log_result("Get Current User - No Token Check", True, 
                           "Correctly rejected request without token")
