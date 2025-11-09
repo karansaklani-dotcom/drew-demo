@@ -839,6 +839,7 @@ class DrewAPITester:
         self.test_onboarding_endpoint()
         self.test_auth_additional_endpoints()
         self.test_backward_compatibility()
+        self.test_ai_agent_chat_endpoint()
         
         # Print summary
         print("\n" + "=" * 60)
