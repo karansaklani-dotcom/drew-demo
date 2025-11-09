@@ -26,6 +26,8 @@ from auth import (
 )
 from semantic_search import SemanticSearchService
 from recommendation_agent import RecommendationAgent
+from agent_tools import AgentTools
+from multi_agent_system import SupervisorAgent
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
