@@ -20,6 +20,11 @@ class DrewAPITester:
         self.test_user_id = None
         self.test_org_id = None
         self.test_activity_id = None
+        # Create unique test data
+        import time
+        self.timestamp = int(time.time())
+        self.test_email = f"sarah.johnson.{self.timestamp}@example.com"
+        self.test_username = f"sarah_johnson_{self.timestamp}"
         self.results = {
             "passed": 0,
             "failed": 0,
